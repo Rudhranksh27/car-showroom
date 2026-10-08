@@ -8,6 +8,29 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: #78999a;
+  --color-sky-50: #f1f6f6;
+  --color-sky-100: #dce9e9;
+  --color-sky-200: #bfd2d3;
+  --color-sky-300: #a2babc;
+  --color-sky-400: #8da9aa;
+  --color-sky-500: #78999a;
+  --color-sky-600: #638487;
+  --color-sky-700: #526f72;
+  --color-sky-800: #435b5d;
+  --color-sky-900: #35494b;
+  --color-sky-950: #243436;
+  --color-blue-50: #f1f6f6;
+  --color-blue-100: #dce9e9;
+  --color-blue-200: #bfd2d3;
+  --color-blue-300: #a2babc;
+  --color-blue-400: #8da9aa;
+  --color-blue-500: #78999a;
+  --color-blue-600: #638487;
+  --color-blue-700: #526f72;
+  --color-blue-800: #435b5d;
+  --color-blue-900: #35494b;
+  --color-blue-950: #243436;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -23,4 +46,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes customer-bulletin-scroll {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.customer-bulletin-ticker {
+  animation: customer-bulletin-scroll 42s linear infinite;
+}
+
+.customer-bulletin-ticker:hover {
+  animation-play-state: paused;
 }
