@@ -116,8 +116,8 @@ export default function InventoryRange() {
               <div className="mt-4 rounded-[18px] border border-slate-200 bg-white p-4">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-xl font-black tracking-[-0.02em] text-slate-900">{brand.name}</h3>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600">
-                    {brand.count}
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+                    Models {brand.count}
                   </span>
                 </div>
 
@@ -125,7 +125,7 @@ export default function InventoryRange() {
                   href={brand.slug === "maruti-suzuki" ? "/maruti-suzuki" : `/cars?brand=${encodeURIComponent(brand.slug)}`}
                   className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0b3d32] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#082d25]"
                 >
-                  View models
+                  Know more
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
