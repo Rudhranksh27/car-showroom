@@ -28,6 +28,7 @@ const variants = [
 export default function MarutiSuzukiPage() {
   const [fuelFilter, setFuelFilter] = useState("All");
   const [transmissionFilter, setTransmissionFilter] = useState("All");
+  const [openVariantMenu, setOpenVariantMenu] = useState<string | null>(null);
 
   const visibleVariants = useMemo(() => {
     return variants.filter((variant) => {
@@ -117,6 +118,14 @@ export default function MarutiSuzukiPage() {
             >
               Get Navaratri Offers
             </Link>
+
+            <a
+              href="/brochure/brezza/Brochure.pdf"
+              download="Maruti-Suzuki-Brezza-Brochure.pdf"
+              className="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-[#f77b42] bg-white px-6 py-4 text-lg font-bold text-[#f77b42] transition hover:bg-orange-50"
+            >
+              Download Brochure
+            </a>
 
             <div className="mt-8 flex items-center gap-3 text-lg font-semibold text-slate-700">
               <span className="text-2xl text-[#f77b42]">⏱</span>
@@ -248,9 +257,41 @@ export default function MarutiSuzukiPage() {
                 <button type="button" className="rounded-full border border-[#f59e67] bg-white px-4 py-2 text-sm font-bold text-[#f77b42] hover:bg-orange-50">
                   Get Festive Offers
                 </button>
-                <Link href={`/cars/maruti-brezza-zxi/book-test-drive?variant=${encodeURIComponent(variant.name)}`} className="rounded-full bg-[#0b3d32] px-4 py-2 text-sm font-bold text-white hover:bg-[#082d25]">
-                  Book Now
-                </Link>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={openVariantMenu === variant.name}
+                    onClick={() =>
+                      setOpenVariantMenu((current) =>
+                        current === variant.name ? null : variant.name,
+                      )
+                    }
+                    className="rounded-full bg-[#0b3d32] px-4 py-2 text-sm font-bold text-white hover:bg-[#082d25]"
+                  >
+                    Book Now
+                  </button>
+                  <div
+                    className={`absolute right-0 top-full z-10 w-52 pt-2 ${
+                      openVariantMenu === variant.name ? "block" : "hidden"
+                    } group-hover:block group-focus-within:block`}
+                  >
+                    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                      <Link
+                        href={`/cars/maruti-brezza-zxi/book-test-drive?variant=${encodeURIComponent(variant.name)}`}
+                        className="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        Book a Test Drive
+                      </Link>
+                      <Link
+                        href={`/cars/maruti-brezza-zxi/checkout?variant=${encodeURIComponent(variant.name)}`}
+                        className="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        Book Now
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
