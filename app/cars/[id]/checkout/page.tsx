@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import CarCheckout from "../../../components/CarCheckout";
 import Navbar from "../../../components/Navbar";
+import { getAuthenticatedUser } from "../../../lib/auth";
 import { cars, getCarById } from "../../../lib/cars";
 
 type CheckoutPageProps = {
@@ -18,6 +19,10 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
   const car = getCarById(id);
 
   if (!car) notFound();
+  if (!(await getAuthenticatedUser())) {
+    const next = `/cars/${car.id}/checkout${typeof variant === "string" ? `?variant=${encodeURIComponent(variant)}` : ""}`;
+    redirect(`/login?next=${encodeURIComponent(next)}`);
+  }
 
   const checkoutCar = typeof variant === "string" ? { ...car, name: variant } : car;
 

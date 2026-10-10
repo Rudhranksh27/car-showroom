@@ -54,7 +54,6 @@ const notifications = [
 const userMenu = [
   { label: "My Bookings", href: "/bookings" },
   { label: "Account", href: "/account" },
-  { label: "Logout", href: "/logout" },
 ];
 
 const serviceNavLinks = [
@@ -83,7 +82,39 @@ export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [servicesActive, setServicesActive] = useState(false);
+
+  useEffect(() => {
+    const refreshLoginState = async () => {
+      try {
+        const response = await fetch("/api/auth/session");
+        if (!response.ok) throw new Error("Unable to read session");
+        const result = (await response.json()) as { user: { id: string } | null };
+        setLoggedIn(Boolean(result.user));
+      } catch {
+        setAuthError("Unable to check your login status.");
+      }
+    };
+
+    const handleAuthChange = () => void refreshLoginState();
+    void refreshLoginState();
+    window.addEventListener("auth-state-change", handleAuthChange);
+    return () => window.removeEventListener("auth-state-change", handleAuthChange);
+  }, []);
+
+  async function handleLogout() {
+    setAuthError(null);
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Logout failed");
+      setLoggedIn(false);
+      setShowUserMenu(false);
+      setMobileOpen(false);
+    } catch {
+      setAuthError("Unable to log out. Please try again.");
+    }
+  }
 
   useEffect(() => {
     let frame = 0;
@@ -232,6 +263,13 @@ export default function Navbar() {
                           {item.label}
                         </Link>
                       ))}
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="block w-full px-4 py-2.5 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                      >
+                        Logout
+                      </button>
                     </div>
                   )}
                 </div>
@@ -251,6 +289,7 @@ export default function Navbar() {
                   </Link>
                 </div>
               )}
+              {authError && <p role="alert" className="text-xs text-red-200">{authError}</p>}
 
               <Link
                 href="/contact"
@@ -410,6 +449,13 @@ export default function Navbar() {
                       {item.label}
                     </Link>
                   ))}
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="block w-full rounded-full border border-slate-200 px-4 py-2 text-center text-sm font-medium text-slate-700"
+                  >
+                    Logout
+                  </button>
                 </>
               ) : (
                 <>
@@ -429,6 +475,7 @@ export default function Navbar() {
                   </Link>
                 </>
               )}
+              {authError && <p role="alert" className="text-center text-sm text-red-600">{authError}</p>}
             </div>
           </div>
         </div>
