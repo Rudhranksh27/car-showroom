@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
+import { getAuthenticatedUser } from "../../../lib/auth";
 import { getCarById } from "../../../lib/cars";
 
 const BOOKING_AMOUNT = 100000;
 
 export async function POST(request: Request) {
   try {
+    if (!(await getAuthenticatedUser())) {
+      return NextResponse.json({ error: "Please log in to book a car" }, { status: 401 });
+    }
+
     const { carId } = (await request.json()) as { carId?: string };
     const car = carId ? getCarById(carId) : undefined;
 

@@ -1,8 +1,13 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
+import { getAuthenticatedUser } from "../../../lib/auth";
 
 export async function POST(request: Request) {
   try {
+    if (!(await getAuthenticatedUser())) {
+      return NextResponse.json({ error: "Please log in to book a car" }, { status: 401 });
+    }
+
     const { orderId, paymentId, signature } = (await request.json()) as {
       orderId?: string;
       paymentId?: string;
