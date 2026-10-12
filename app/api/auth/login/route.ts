@@ -35,13 +35,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    const role = user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? user.role : "USER";
     const token = createSessionToken({
       id: user._id.toString(),
       name: user.name,
       email: user.email,
+      role,
     });
     const response = NextResponse.json({
-      user: { id: user._id.toString(), name: user.name, email: user.email },
+      user: { id: user._id.toString(), name: user.name, email: user.email, role },
     });
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,
