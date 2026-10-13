@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       name: name.trim(),
       email: normalizedEmail,
       password: await bcrypt.hash(password, 12),
+      role: "USER" as const,
       createdAt: new Date(),
     };
     const result = await users.insertOne(user);

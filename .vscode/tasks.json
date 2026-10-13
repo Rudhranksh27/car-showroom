@@ -1,0 +1,45 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "setup-prisma",
+			"type": "shell",
+			"command": "mkdir prisma && npm install --save-dev prisma tsx @prisma/client",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "install-jose",
+			"type": "shell",
+			"command": "npm install --save jose",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "create-admin-layout",
+			"type": "shell",
+			"command": "mkdir app/admin app/components/admin",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "create-admin-dirs",
+			"type": "shell",
+			"command": "cmd /c \"cd /d P:\\car-demo && mkdir app\\admin && mkdir app\\components\\admin\"",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "admin-shell-check",
+			"type": "shell",
+			"command": "cmd /c \"cd /d P:\\car-demo && npx tsc --noEmit\"",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
