@@ -4,27 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
-export const inventoryBrands = [
-  { name: "Maruti Suzuki", slug: "maruti-suzuki" },
-  { name: "Hyundai", slug: "hyundai" },
-  { name: "Tata", slug: "tata" },
-  { name: "Mahindra", slug: "mahindra" },
-  { name: "Toyota", slug: "toyota" },
-  { name: "Honda", slug: "honda" },
-  { name: "Kia", slug: "kia" },
-  { name: "Skoda", slug: "skoda" },
-  { name: "MG", slug: "mg" },
-  { name: "Renault", slug: "renault" },
-  { name: "Nissan", slug: "nissan" },
-  { name: "Volkswagen", slug: "volkswagen" },
-  { name: "Ford", slug: "ford" },
-  { name: "BMW", slug: "bmw" },
-  { name: "Mercedes-Benz", slug: "mercedes-benz" },
-  { name: "Audi", slug: "audi" },
-  { name: "Jaguar", slug: "jaguar" },
-  { name: "Land Rover", slug: "land-rover" },
-  { name: "Volvo", slug: "volvo" },
-];
+export type BrandLink = { name: string; slug: string };
 
 export const inventoryCategories = [
   "SUV",
@@ -61,12 +41,14 @@ type InventoryMegaMenuProps = {
   href?: string;
   label?: string;
   active?: boolean;
+  brands?: BrandLink[];
 };
 
 export function InventoryMegaMenu({
   href = "/cars",
   label = "Inventory",
   active = false,
+  brands = [],
 }: InventoryMegaMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -151,7 +133,7 @@ export function InventoryMegaMenu({
                     Browse by Brand
                   </p>
                   <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
-                    {inventoryBrands.map((brand) => (
+                    {brands.map((brand) => (
                       <Link
                         key={brand.name}
                         href={`/cars?brand=${brand.slug}`}

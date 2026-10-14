@@ -1,76 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
-
-type BrandModelInfo = {
-  name: string;
-  slug: string;
-  count: number;
-  image: string;
-};
-
-const brandCatalog: BrandModelInfo[] = [
-  {
-    name: "Maruti Suzuki",
-    slug: "maruti-suzuki",
-    count: 6,
-    image: "/carImages/maruati.png",
-  },
-  {
-    name: "Tata",
-    slug: "tata",
-    count: 7,
-    image: "/carImages/punch%20(2).png",
-  },
-  {
-    name: "Hyundai",
-    slug: "hyundai",
-    count: 7,
-    image: "/carImages/c3.png",
-  },
-  {
-    name: "Kia",
-    slug: "kia",
-    count: 5,
-    image: "/carImages/sonet.png",
-  },
-  {
-    name: "Mahindra",
-    slug: "mahindra",
-    count: 7,
-    image: "/carImages/mahindra.png",
-  },
-  {
-    name: "Renault",
-    slug: "renault",
-    count: 3,
-    image: "/carImages/Duster.png",
-  },
-  {
-    name: "Toyota",
-    slug: "toyota",
-    count: 5,
-    image: "/carImages/toyota.png",
-  },
-  {
-    name: "Honda",
-    slug: "honda",
-    count: 5,
-    image: "/carImages/honda.png",
-  },
-];
-
-const brandOptions = ["All", ...brandCatalog.map((brand) => brand.name)];
+import { ArrowRight, ChevronRight, CarFront } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Brand } from "../lib/catalog-types";
 
 export default function InventoryRange() {
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedBrand, setSelectedBrand] = useState("All");
 
-  const visibleBrands = useMemo(() => {
-    if (selectedBrand === "All") return brandCatalog;
-    return brandCatalog.filter((brand) => brand.name === selectedBrand);
-  }, [selectedBrand]);
+  useEffect(() => {
+    fetch("/api/catalog/brands")
+      .then((r) => r.json())
+      .then((data: { brands?: Brand[] }) => {
+        setBrands(data.brands ?? []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const visibleBrands =
+    selectedBrand === "All" ? brands : brands.filter((b) => b.name === selectedBrand);
 
   return (
     <section className="w-full bg-[#f3f3f3] px-4 py-16 sm:px-6 lg:px-8">
@@ -85,53 +36,104 @@ export default function InventoryRange() {
             </h2>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {brandOptions.map((brand) => (
-              <button
-                key={brand}
-                type="button"
-                onClick={() => setSelectedBrand(brand)}
-                className={`rounded-full border px-3 py-2 text-sm font-semibold transition-colors ${
-                  selectedBrand === brand
-                    ? "border-[#0b3d32] bg-[#0b3d32] text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                }`}
-              >
-                {brand}
-              </button>
+          {brands.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {["All", ...brands.map((b) => b.name)].map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setSelectedBrand(name)}
+                  className={`rounded-full border px-3 py-2 text-sm font-semibold transition-colors ${
+                    selectedBrand === name
+                      ? "border-[#0b3d32] bg-[#0b3d32] text-white"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                  }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-72 animate-pulse rounded-[24px] bg-slate-200" />
             ))}
           </div>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {visibleBrands.map((brand) => (
-            <article
-              key={brand.name}
-              className="overflow-hidden rounded-[24px] border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70"
-            >
-              <div className="overflow-hidden rounded-[18px] bg-slate-100">
-                <img src={brand.image} alt={brand.name} className="h-52 w-full object-cover" />
-              </div>
-
-              <div className="mt-4 rounded-[18px] border border-slate-200 bg-white p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-black tracking-[-0.02em] text-slate-900">{brand.name}</h3>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
-                    Models {brand.count}
-                  </span>
+        ) : brands.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-14 text-center">
+            <p className="text-slate-500">No brands added yet. Check back soon.</p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {visibleBrands.map((brand) => (
+              <article
+                key={brand._id}
+                className="overflow-hidden rounded-[24px] border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70"
+              >
+                {/* Brand image / logo area */}
+                <div className="flex h-44 items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-br from-slate-100 to-slate-200">
+                  {brand.logo ? (
+                    <img
+                      src={brand.logo}
+                      alt={brand.name}
+                      className="h-28 w-full object-contain px-8"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <CarFront className="h-16 w-16 text-slate-300" strokeWidth={1} />
+                      <span className="text-2xl font-black text-slate-300">
+                        {brand.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <Link
-                  href={brand.slug === "maruti-suzuki" ? "/maruti-suzuki" : `/cars?brand=${encodeURIComponent(brand.slug)}`}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0b3d32] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#082d25]"
-                >
-                  Know more
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className="mt-4 rounded-[18px] border border-slate-200 bg-white p-4">
+                  <h3 className="text-xl font-black tracking-[-0.02em] text-slate-900">
+                    {brand.name}
+                  </h3>
+
+                  {/* Stats grid */}
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-slate-50 px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Models</p>
+                      <p className="mt-0.5 text-base font-black text-slate-900">{brand.modelCount ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Service Centers</p>
+                      <p className="mt-0.5 text-base font-black text-slate-900">
+                        {brand.serviceCenters != null ? brand.serviceCenters.toLocaleString() : "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Sold This Year</p>
+                      <p className="mt-0.5 text-base font-black text-slate-900">
+                        {brand.soldThisYear != null ? brand.soldThisYear.toLocaleString() : "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Sold This Month</p>
+                      <p className="mt-0.5 text-base font-black text-slate-900">
+                        {brand.soldThisMonth != null ? brand.soldThisMonth.toLocaleString() : "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/brands/${brand.slug}`}
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0b3d32] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#082d25]"
+                  >
+                    Know more
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
 
         <div className="mt-8 flex items-center justify-end">
           <Link
