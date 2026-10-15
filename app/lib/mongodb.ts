@@ -24,9 +24,29 @@ export async function getUsersCollection() {
   return collection;
 }
 
+export type BookingAction = "test drive booking" | "buy now";
+
+export type BookingEntry = {
+  action: BookingAction;
+  reference: string;
+  carId: string;
+  carName: string;
+  price?: string;
+  contactName: string;
+  phone: string;
+  // Test drive bookings only
+  date?: string;
+  time?: string;
+  location?: string;
+  // Buy now bookings only
+  paymentId?: string;
+  createdAt: Date;
+};
+
 export type UserDocument = {
   name: string;
   email: string;
   password: string;
+  bookings?: BookingEntry[];
   createdAt: Date;
 };

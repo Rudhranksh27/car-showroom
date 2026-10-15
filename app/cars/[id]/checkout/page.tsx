@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import CarCheckout from "../../../components/CarCheckout";
 import Navbar from "../../../components/Navbar";
 import { getAuthenticatedUser } from "../../../lib/auth";
-import { cars, getCarById } from "../../../lib/cars";
+import { cars } from "../../../lib/cars";
+import { resolveCheckoutCar } from "../../../lib/checkout-car";
 
 type CheckoutPageProps = {
   params: Promise<{ id: string }>;
@@ -16,15 +17,15 @@ export function generateStaticParams() {
 
 export default async function CheckoutPage({ params, searchParams }: CheckoutPageProps) {
   const [{ id }, { variant }] = await Promise.all([params, searchParams]);
-  const car = getCarById(id);
+  const checkoutCar = await resolveCheckoutCar(id, typeof variant === "string" ? variant : undefined);
 
-  if (!car) notFound();
+  if (!checkoutCar) notFound();
   if (!(await getAuthenticatedUser())) {
-    const next = `/cars/${car.id}/checkout${typeof variant === "string" ? `?variant=${encodeURIComponent(variant)}` : ""}`;
+    const next = `/cars/${checkoutCar.id}/checkout${typeof variant === "string" ? `?variant=${encodeURIComponent(variant)}` : ""}`;
     redirect(`/login?next=${encodeURIComponent(next)}`);
   }
 
-  const checkoutCar = typeof variant === "string" ? { ...car, name: variant } : car;
+  const car = checkoutCar;
 
   return (
     <main className="min-h-screen bg-[#f6f8fa] text-slate-900">

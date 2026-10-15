@@ -37,7 +37,7 @@ export default function ModelGallery({ name, main, exterior, interior }: Props) 
                 key={t.key}
                 type="button"
                 onClick={() => { setTab(t.key); setIndex(0); }}
-                className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+                className={`rounded-full px-4 py-1.5 text-sm font-bold transition ${
                   t.key === active.key ? "bg-[#0b3d32] text-white" : "text-slate-500 hover:text-slate-900"
                 }`}
               >

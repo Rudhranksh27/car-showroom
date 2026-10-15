@@ -5,7 +5,7 @@ const NUMBER_FIELDS = [
   "seatingCapacity", "doors", "bootSpace",
 ] as const;
 const STRING_FIELDS = [
-  "segment", "overview", "image", "brochureUrl", "websiteUrl", "launchDate",
+  "segment", "drive", "overview", "image", "brochureUrl", "websiteUrl", "launchDate",
 ] as const;
 const LIST_FIELDS = ["transmissions", "exteriorImages", "interiorImages"] as const;
 const BOOLEAN_FIELDS = ["discontinued", "published"] as const;

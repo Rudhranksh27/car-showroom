@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, Layers } from "lucide-react";
 import type { Model, Variant } from "../../lib/catalog-types";
+import SubVariantsEditor from "./SubVariantsEditor";
 
 const FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric"];
 const TRANSMISSIONS = ["Manual", "Automatic", "AMT", "CVT", "DCT"];
@@ -228,6 +229,7 @@ export default function VariantsPanel() {
   const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [subId, setSubId] = useState<string | null>(null);
 
   async function fetchModels() {
     try {
@@ -316,7 +318,7 @@ export default function VariantsPanel() {
             </thead>
             <tbody className="divide-y divide-slate-700 bg-slate-900">
               {variants.map((variant) => (
-                <tr key={variant._id} className={editId === variant._id ? "bg-slate-800" : "hover:bg-slate-800/50"}>
+                <tr key={variant._id} className={editId === variant._id || subId === variant._id ? "bg-slate-800" : "hover:bg-slate-800/50"}>
                   {editId === variant._id ? (
                     <td className="px-4 py-4" colSpan={5}>
                       <EditVariantForm
@@ -324,6 +326,15 @@ export default function VariantsPanel() {
                         variant={variant}
                         onSaved={() => { setEditId(null); void fetchVariants(); }}
                         onCancel={() => setEditId(null)}
+                      />
+                    </td>
+                  ) : subId === variant._id ? (
+                    <td className="px-4 py-4" colSpan={5}>
+                      <SubVariantsEditor
+                        key={variant._id}
+                        variant={variant}
+                        onSaved={() => { setSubId(null); void fetchVariants(); }}
+                        onCancel={() => setSubId(null)}
                       />
                     </td>
                   ) : (
@@ -337,7 +348,11 @@ export default function VariantsPanel() {
                       <td className="px-4 py-3 font-semibold text-white">{variant.price}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
-                          <button type="button" onClick={() => { setEditId(variant._id); setShowAdd(false); }}
+                          <button type="button" onClick={() => { setSubId(variant._id); setEditId(null); setShowAdd(false); }}
+                            className="flex items-center gap-1 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-amber-400 hover:text-amber-400">
+                            <Layers className="h-3.5 w-3.5" />Sub-variants ({variant.subVariants?.length ?? 0})
+                          </button>
+                          <button type="button" onClick={() => { setEditId(variant._id); setSubId(null); setShowAdd(false); }}
                             className="flex items-center gap-1 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-amber-400 hover:text-amber-400">
                             <Pencil className="h-3.5 w-3.5" />Edit
                           </button>

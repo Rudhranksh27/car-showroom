@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import type { Car } from "../lib/cars";
+import AlreadyBookedModal from "./AlreadyBookedModal";
 
 type TestDriveFormProps = {
   car: Car;
@@ -10,10 +11,48 @@ type TestDriveFormProps = {
 
 export default function TestDriveForm({ car }: TestDriveFormProps) {
   const [bookingReference, setBookingReference] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showAlreadyBooked, setShowAlreadyBooked] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setBookingReference(`VD-${car.id.slice(0, 4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`);
+    const formData = new FormData(event.currentTarget);
+    setError(null);
+    setNeedsLogin(false);
+    setIsSaving(true);
+
+    try {
+      const response = await fetch("/api/bookings/test-drive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          carId: car.id,
+          carName: car.name,
+          price: car.price,
+          name: formData.get("name"),
+          phone: formData.get("phone"),
+          date: formData.get("date"),
+          time: formData.get("time"),
+          location: formData.get("location"),
+        }),
+      });
+      const result = (await response.json()) as { reference?: string; error?: string };
+
+      if (response.status === 401) setNeedsLogin(true);
+      if (response.status === 409) {
+        setShowAlreadyBooked(true);
+        return;
+      }
+      if (!response.ok || !result.reference) throw new Error(result.error ?? "Unable to save your booking");
+
+      setBookingReference(result.reference);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to save your booking");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   if (bookingReference) {
@@ -38,10 +77,21 @@ export default function TestDriveForm({ car }: TestDriveFormProps) {
         <label className="text-sm font-semibold text-slate-700">Phone number<input required name="phone" type="tel" placeholder="10-digit phone number" pattern="[0-9+() -]{8,}" className="mt-2 w-full border border-slate-200 px-4 py-3 font-normal outline-none focus:border-sky-500" /></label>
         <label className="text-sm font-semibold text-slate-700">Preferred date<input required name="date" type="date" className="mt-2 w-full border border-slate-200 px-4 py-3 font-normal outline-none focus:border-sky-500" /></label>
         <label className="text-sm font-semibold text-slate-700">Preferred time<select required name="time" defaultValue="" className="mt-2 w-full border border-slate-200 bg-white px-4 py-3 font-normal outline-none focus:border-sky-500"><option value="" disabled>Select a time</option><option>10:00 AM - 12:00 PM</option><option>12:00 PM - 2:00 PM</option><option>4:00 PM - 6:00 PM</option></select></label>
-        <label className="text-sm font-semibold text-slate-700">Location<input required name="location" type="text" placeholder="City or area" className="mt-2 w-full border border-slate-200 px-4 py-3 font-normal outline-none focus:border-sky-500" /></label>
-        <label className="text-sm font-semibold text-slate-700">Dealer preference<select required name="dealer" defaultValue="" className="mt-2 w-full border border-slate-200 bg-white px-4 py-3 font-normal outline-none focus:border-sky-500"><option value="" disabled>Select a dealer</option><option>VirtualDrive Central</option><option>VirtualDrive North</option><option>VirtualDrive South</option></select></label>
+        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Location<input required name="location" type="text" placeholder="City or area" className="mt-2 w-full border border-slate-200 px-4 py-3 font-normal outline-none focus:border-sky-500" /></label>
       </div>
-      <button type="submit" className="w-full rounded-full bg-[#0b3d32] px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#082d25]">Confirm test drive</button>
+      {error && (
+        <p role="alert" className="text-sm font-medium text-red-600">
+          {error}
+          {needsLogin && (
+            <>
+              {" "}
+              <Link href="/login" className="underline">Log in</Link>
+            </>
+          )}
+        </p>
+      )}
+      <button type="submit" disabled={isSaving} className="w-full rounded-full bg-[#0b3d32] px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#082d25] disabled:cursor-wait disabled:opacity-60">{isSaving ? "Saving..." : "Confirm test drive"}</button>
+      {showAlreadyBooked && <AlreadyBookedModal carName={car.name} onClose={() => setShowAlreadyBooked(false)} />}
     </form>
   );
 }
