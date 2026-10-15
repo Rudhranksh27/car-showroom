@@ -32,13 +32,13 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    label: "Services",
-    href: "#services",
+    label: "How It Works",
+    href: "/#how-it-works",
     children: [
-      { label: "Maintenance", href: "#maintenance" },
-      { label: "Repairs", href: "#repairs" },
-      { label: "Financing", href: "#financing" },
-      { label: "Trade-in", href: "#trade-in" },
+      { label: "The 4 Steps", href: "/#how-it-works" },
+      { label: "Us vs. Dealerships", href: "/#compare" },
+      { label: "Why Choose Us", href: "/#why-choose-us" },
+      { label: "FAQ", href: "/#faq" },
     ],
   },
   { label: "About", href: "/about" },
@@ -57,10 +57,10 @@ const userMenu = [
 ];
 
 const serviceNavLinks = [
-  { label: "Maintenance", href: "#maintenance" },
-  { label: "Repairs", href: "#repairs" },
-  { label: "Financing", href: "#financing" },
-  { label: "Trade-in", href: "#trade-in" },
+  { label: "The 4 Steps", href: "/#how-it-works" },
+  { label: "Us vs. Dealerships", href: "/#compare" },
+  { label: "Why Choose Us", href: "/#why-choose-us" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 const customerBulletins = [
@@ -129,7 +129,7 @@ export default function Navbar() {
   useEffect(() => {
     let frame = 0;
     const updateServicesVisibility = () => {
-      const servicesSection = document.getElementById("services");
+      const servicesSection = document.getElementById("how-it-works");
 
       if (!servicesSection) return;
 
@@ -347,10 +347,10 @@ export default function Navbar() {
         <div className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#071827]/85 text-white shadow-lg backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-4 sm:px-6 lg:px-8">
           <Link
-            href="#services"
+            href="/#how-it-works"
             className="shrink-0 text-sm font-black uppercase tracking-[0.2em] text-white"
           >
-            Services
+            How It Works
           </Link>
           <nav className="flex min-w-0 flex-1 items-center justify-end gap-5 overflow-x-auto md:gap-8">
             {serviceNavLinks.map((item) => (

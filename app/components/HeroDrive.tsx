@@ -2,13 +2,25 @@ import Link from "next/link";
 import CarSlider from "./CarSlider";
 import InventoryRange from "./InventoryRange";
 import TrustStrip from "./TrustStrip";
-import { BadgeCheck, CarFront, CircleDollarSign, Headphones, House, ShieldCheck } from "lucide-react";
+import HowItWorks from "./HowItWorks";
+import { BadgeCheck, BadgePercent, CarFront, CircleDollarSign, Headphones, House, ShieldCheck, Sparkles, Wallet } from "lucide-react";
 
-const serviceLinks = [
-  { label: "Maintenance", detail: "Keep every mile running smoothly." },
-  { label: "Repairs", detail: "Certified care when you need it." },
-  { label: "Financing", detail: "Flexible plans for your next drive." },
-  { label: "Trade-in", detail: "Get a fair value for your current car." },
+const heroHighlights = [
+  {
+    title: "Keep the money dealers add on",
+    detail: "No forced accessories, no inflated fees. Save on every car you buy.",
+    icon: BadgePercent,
+  },
+  {
+    title: "Reserve with a small booking amount",
+    detail: "Lock in your car online in minutes, with no big upfront payment.",
+    icon: Wallet,
+  },
+  {
+    title: "Delivered free to your doorstep",
+    detail: "Skip the showroom queues. Your car arrives right at your home.",
+    icon: House,
+  },
 ];
 
 const whyChooseUs = [
@@ -75,39 +87,67 @@ const frequentlyAskedQuestions = [
 
 export default function HeroDrive() {
   return (
-    <section className="w-full bg-[#f3f3f3] py-10 md:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-10 rounded-t-2xl border border-gray-200 bg-white px-6 py-10 md:px-10 lg:grid-cols-12 lg:px-12 lg:py-14">
+    <section className="w-full bg-[#f3f3f3] pb-10 md:pb-16">
+      <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#dff1ed] via-[#f5fbf9] to-[#cfe9e3]">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-32 -z-10 h-[26rem] w-[26rem] rounded-full bg-[#1a8978]/25 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 right-[-6rem] -z-10 h-[30rem] w-[30rem] rounded-full bg-amber-200/50 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-30 [background-image:radial-gradient(#0b3d32_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
+        />
+
+        <div className="mx-auto max-w-[88rem] px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 px-0 pb-24 pt-14 md:px-6 lg:grid-cols-12 lg:px-10 lg:pb-32 lg:pt-20">
           <div className="lg:col-span-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
-            PREMIUM SHOWROOM
+          <p className="inline-flex items-center gap-2.5 rounded-full bg-[#0b3d32] px-5 py-2.5 text-sm font-extrabold uppercase tracking-[0.16em] text-white shadow-lg shadow-[#0b3d32]/30 ring-4 ring-[#1a8978]/15">
+            <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-300" />
+            </span>
+            <Sparkles className="h-4 w-4 text-amber-300" aria-hidden="true" />
+            Zero dealer add-on fees
           </p>
 
-          <h1 className="mt-5 text-4xl font-black leading-[0.96] tracking-[-0.04em] text-gray-900 md:text-5xl">
-            Find Your Next Drive
+          <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-gray-900 md:text-6xl">
+            Pay for the car. <span className="text-[#1a8978]">Not the extras.</span>
           </h1>
 
-          <p className="mt-5 max-w-md text-base leading-7 text-gray-600">
-            Explore handpicked models, compare features, and reserve the right fit for your lifestyle in minutes.
+          <p className="mt-6 max-w-lg text-lg leading-8 text-gray-600">
+            Say goodbye to inflated dealer charges. Reserve your dream car with a small booking amount and we deliver it
+            straight to your doorstep.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <ul className="mt-8 grid max-w-lg gap-5">
+            {heroHighlights.map(({ title, detail, icon: Icon }) => (
+              <li key={title} className="flex items-start gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#1a8978]/10 text-[#1a8978]">
+                  <Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
+                </span>
+                <span className="text-base leading-6 text-gray-600">
+                  <strong className="block text-lg font-bold text-gray-900">{title}</strong>
+                  {detail}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-9 flex flex-wrap items-center gap-5">
             <Link
               href="/inventory"
-              className="inline-flex items-center justify-center rounded-full bg-[#1a8978] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1a8978]/20 transition-colors duration-200 hover:bg-[#147261] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#147261]"
+              className="inline-flex items-center justify-center rounded-full bg-[#1a8978] px-8 py-4 text-base font-bold text-white shadow-lg shadow-[#1a8978]/25 transition-colors duration-200 hover:bg-[#147261] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#147261]"
             >
-              Browse Inventory →
+              Browse &amp; Book Your Car →
             </Link>
 
             <Link
               href="/book-test-drive"
-              className="inline-flex items-center text-sm font-semibold text-gray-700 transition-colors hover:text-gray-900"
+              className="inline-flex items-center text-base font-semibold text-gray-700 transition-colors hover:text-gray-900"
             >
               Book a Test Drive
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3 text-xs font-medium text-gray-400">
+          <div className="mt-9 flex flex-wrap items-center gap-3 text-sm font-semibold text-gray-500">
             <span>500+ cars</span>
             <span className="text-gray-300">•</span>
             <span>50+ brands</span>
@@ -116,46 +156,22 @@ export default function HeroDrive() {
           </div>
           </div>
 
-          <div className="lg:col-span-7">
-            <CarSlider />
-          </div>
-        </div>
-
-        <TrustStrip />
-      </div>
-
-      <section id="services" className="mt-16 w-full scroll-mt-20 bg-[#f3f3f3]">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
-              Everything after the sale
-            </p>
-            <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] text-gray-900 md:text-4xl">
-              Find Your Services
-            </h2>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-gray-500">
-              Expert support, simple financing, and dependable care for every stage of ownership.
-            </p>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {serviceLinks.map((service) => (
-                <Link
-                  key={service.label}
-                  href={`/services/${service.label.toLowerCase()}`}
-                  className="group rounded-xl border border-slate-200 bg-slate-50 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:shadow-lg hover:shadow-slate-200/70"
-                >
-                  <span className="text-sm font-bold uppercase tracking-widest text-slate-900">
-                    {service.label}
-                  </span>
-                  <span className="mt-3 block text-sm leading-6 text-slate-500">
-                    {service.detail}
-                  </span>
-                </Link>
-              ))}
+          <div className="relative lg:col-span-7">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-[8%] inset-y-[12%] rounded-full bg-white/70 blur-2xl" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-[16%] bottom-[14%] h-8 rounded-[50%] bg-[#0b3d32]/20 blur-xl" />
+            <div className="relative">
+              <CarSlider />
             </div>
           </div>
         </div>
-      </section>
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto -mt-12 max-w-[88rem] px-4 sm:px-6 lg:px-8">
+        <TrustStrip />
+      </div>
+
+      <HowItWorks />
 
       <InventoryRange />
 
