@@ -1,76 +1,287 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Heart, Scale } from "lucide-react";
+import { Heart, Scale, FileText, ExternalLink, Check, Gauge, Ruler, Users } from "lucide-react";
 import Navbar from "../../components/Navbar";
-import { cars, getCarById } from "../../lib/cars";
+import ModelGallery from "./ModelGallery";
+import { getModelsCollection, getVariantsCollection } from "../../lib/mongodb-catalog";
+import type { Highlight, ModelDoc, VariantDoc } from "../../lib/catalog-types";
+import type { WithId } from "mongodb";
+
+export const dynamic = "force-dynamic";
 
 type CarDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export function generateStaticParams() {
-  return cars.map((car) => ({ id: car.id }));
-}
-
 export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const { id } = await params;
-  const car = getCarById(id);
 
-  if (!car) notFound();
+  let model: WithId<ModelDoc> | null = null;
+  let variants: WithId<VariantDoc>[] = [];
+
+  try {
+    const modelsCol = await getModelsCollection();
+    model = await modelsCol.findOne({ slug: id });
+
+    if (model) {
+      const variantsCol = await getVariantsCollection();
+      variants = await variantsCol
+        .find({ modelId: model._id.toString() })
+        .sort({ createdAt: 1 })
+        .toArray();
+    }
+  } catch {
+    notFound();
+  }
+
+  if (!model || model.published === false) notFound();
+
+  const formatDate = (d?: string) =>
+    d ? new Date(d).toLocaleDateString("en-IN", { year: "numeric", month: "long" }) : undefined;
+  const mm = (v?: number) => (v ? `${v.toLocaleString("en-IN")} mm` : undefined);
+  const specGroups = [
+    {
+      title: "General", icon: Gauge,
+      rows: [
+        ["Body type", model.type],
+        ["Fuel", model.fuels.join(", ")],
+        ["Transmission", model.transmissions?.join(", ")],
+        ["Engine & performance", model.specs],
+        ["Launched", formatDate(model.launchDate)],
+      ],
+    },
+    {
+      title: "Dimensions", icon: Ruler,
+      rows: [
+        ["Length", mm(model.length)],
+        ["Width", mm(model.width)],
+        ["Height", mm(model.height)],
+        ["Wheelbase", mm(model.wheelbase)],
+      ],
+    },
+    {
+      title: "Capacity", icon: Users,
+      rows: [
+        ["Seating", model.seatingCapacity ? `${model.seatingCapacity} seats` : undefined],
+        ["Doors", model.doors ? String(model.doors) : undefined],
+        ["Boot space", model.bootSpace ? `${model.bootSpace.toLocaleString("en-IN")} litres` : undefined],
+      ],
+    },
+  ]
+    .map((g) => ({ title: g.title, icon: g.icon, rows: g.rows.filter((r): r is [string, string] => !!r[1]) }))
+    .filter((g) => g.rows.length > 0);
+  // Legacy plain-string highlights have no header/detail structure, so they are not shown.
+  const highlights = (model.highlights ?? []).filter((h): h is Highlight => typeof h !== "string");
+  const hasHighlights = highlights.length > 0;
 
   return (
     <main className="min-h-screen bg-[#f6f8fa] text-slate-900">
       <Navbar />
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <Link href="/cars" className="text-sm font-semibold text-slate-500 transition-colors hover:text-sky-600">
-          ← Back to Inventory
-        </Link>
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
+          <Link href="/cars" className="font-semibold transition-colors hover:text-sky-600">Inventory</Link>
+          {model.brandSlug && (
+            <>
+              <span aria-hidden="true">/</span>
+              <Link href={`/brands/${model.brandSlug}`} className="font-semibold transition-colors hover:text-sky-600">{model.brandName}</Link>
+            </>
+          )}
+          <span aria-hidden="true">/</span>
+          <span className="text-slate-900">{model.name}</span>
+        </nav>
 
-        <section className="mt-8 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="flex aspect-16/11 items-center justify-center bg-white p-8">
-            <img src={car.image} alt={car.alt} className="h-full w-full object-contain" />
-          </div>
+        {/* Hero */}
+        <section className="mt-6 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+          <ModelGallery
+            name={model.name}
+            main={model.image}
+            exterior={model.exteriorImages ?? []}
+            interior={model.interiorImages ?? []}
+          />
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">{car.brand} · {car.category}</p>
-            <h1 className="mt-4 text-4xl font-black tracking-[-0.04em] md:text-5xl">{car.name}</h1>
-            <p className="mt-4 text-lg font-semibold text-slate-600">{car.price} onwards · Petrol · Manual</p>
-            <p className="mt-3 text-sm text-slate-500">Available at 3 dealers</p>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">
+              {model.brandName} · {model.type}
+            </p>
+            <h1 className="mt-3 text-3xl font-black tracking-[-0.03em] md:text-4xl">{model.name}</h1>
 
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-              In Stock
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {model.discontinued ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />Discontinued
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />In Stock
+                </span>
+              )}
+              {model.modelYear && (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{model.modelYear}</span>
+              )}
+              {model.segment && (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{model.segment}</span>
+              )}
             </div>
 
-            <div className="mt-9 border-t border-slate-200 pt-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Ready to make it yours?</p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <Link href={`/cars/${car.id}/checkout`} className="inline-flex items-center justify-center rounded-full bg-[#0b3d32] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0b3d32]/20 transition hover:bg-[#082d25]">
-                  🚗 Book Now
-                </Link>
-                <Link href={`/cars/${car.id}/book-test-drive`} className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 transition hover:border-sky-500 hover:text-sky-600">
-                  📅 Test Drive
-                </Link>
-                <button type="button" aria-label={`Save ${car.name}`} title="Save car" className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-900 hover:text-slate-900">
-                  <Heart className="h-5 w-5" />
-                </button>
-                <button type="button" aria-label={`Compare ${car.name}`} title="Compare car" className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-900 hover:text-slate-900">
-                  <Scale className="h-5 w-5" />
-                </button>
+            <div className="mt-6 border-t border-slate-100 pt-6">
+              <p className="text-3xl font-black text-slate-900">
+                ₹{model.priceMin.toFixed(2)} – {model.priceMax.toFixed(2)} <span className="text-lg font-bold text-slate-500">Lakh*</span>
+              </p>
+              <p className="mt-1 text-sm text-slate-500">Ex-showroom · {model.fuels.join(" · ")}</p>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link
+                href={`/book-test-drive?model=${encodeURIComponent(model.name)}`}
+                className="inline-flex flex-1 items-center justify-center rounded-full bg-[#0b3d32] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0b3d32]/20 transition hover:bg-[#082d25]"
+              >
+                Book Test Drive
+              </Link>
+              <button type="button" aria-label={`Save ${model.name}`} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-900 hover:text-slate-900">
+                <Heart className="h-5 w-5" />
+              </button>
+              <button type="button" aria-label={`Compare ${model.name}`} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-900 hover:text-slate-900">
+                <Scale className="h-5 w-5" />
+              </button>
+            </div>
+
+            {(model.brochureUrl || model.websiteUrl) && (
+              <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+                {model.brochureUrl && (
+                  <a href={model.brochureUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sky-700 hover:underline">
+                    <FileText className="h-4 w-4" />Download brochure
+                  </a>
+                )}
+                {model.websiteUrl && (
+                  <a href={model.websiteUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sky-700 hover:underline">
+                    <ExternalLink className="h-4 w-4" />Official website
+                  </a>
+                )}
               </div>
-              <p className="mt-6 text-sm text-slate-500">Or call: <a href="tel:+919999999999" className="font-semibold text-slate-900 hover:text-sky-600">+91 99999 99999</a></p>
-            </div>
+            )}
+
+            <p className="mt-6 border-t border-slate-100 pt-5 text-sm text-slate-500">
+              Questions? Call <a href="tel:+919999999999" className="font-semibold text-slate-900 hover:text-sky-600">+91 99999 99999</a>
+            </p>
           </div>
         </section>
 
-        <section className="mt-16 border-y border-slate-200 py-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Vehicle overview</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div><p className="text-sm text-slate-500">Fuel type</p><p className="mt-1 font-bold">Petrol</p></div>
-            <div><p className="text-sm text-slate-500">Transmission</p><p className="mt-1 font-bold">Manual</p></div>
-            <div><p className="text-sm text-slate-500">Availability</p><p className="mt-1 font-bold">3 dealers nearby</p></div>
+        {/* About & highlights */}
+        {(model.overview || hasHighlights) && (
+          <section className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="border-b border-slate-100 px-6 py-5 sm:px-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">Overview</p>
+              <h2 className="mt-1 text-2xl font-black tracking-tight">About the {model.name}</h2>
+            </div>
+
+            {model.overview && (
+              <p className="whitespace-pre-line px-6 pt-6 text-[15px] leading-7 text-slate-600 sm:px-8 sm:pt-8">
+                {model.overview}
+              </p>
+            )}
+
+            {hasHighlights && (
+              <div className="p-6 sm:p-8">
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Highlights</h3>
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {highlights.map((h, i) => {
+                    return (
+                      <li key={`${h.title}-${i}`} className="flex items-start gap-3 rounded-xl bg-slate-50 px-4 py-4">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                          <Check className="h-3 w-3 text-emerald-700" strokeWidth={3} />
+                        </span>
+                        <div>
+                          <p className="text-sm font-black text-slate-900">{h.title}</p>
+                          {h.description && <p className="mt-1 text-sm leading-6 text-slate-600">{h.description}</p>}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Specifications */}
+        <section className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="border-b border-slate-100 px-6 py-5 sm:px-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-600">Technical details</p>
+            <h2 className="mt-1 text-2xl font-black tracking-tight">Specifications</h2>
+          </div>
+          <div className={`grid divide-y divide-slate-100 ${specGroups.length === 1 ? "" : specGroups.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"} md:divide-x md:divide-y-0`}>
+            {specGroups.map((g) => {
+              const Icon = g.icon;
+              return (
+                <div key={g.title} className="p-6 sm:p-8">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b3d32]/10 text-[#0b3d32]">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <h3 className="text-base font-black tracking-tight">{g.title}</h3>
+                  </div>
+                  <dl className="mt-5 space-y-2">
+                    {g.rows.map(([label, value]) => (
+                      <div key={label} className="rounded-lg bg-slate-50 px-4 py-3">
+                        <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400">{label}</dt>
+                        <dd className="mt-0.5 text-sm font-bold text-slate-900">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              );
+            })}
           </div>
         </section>
+
+        {/* Variants */}
+        {variants.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">
+              {model.name} — Variants &amp; Pricing
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              ₹{model.priceMin.toFixed(2)} – {model.priceMax.toFixed(2)} Lakh (ex-showroom)
+            </p>
+
+            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-bold uppercase tracking-[0.08em] text-slate-500">
+                <div>Variant</div>
+                <div>Ex-Showroom Price</div>
+                <div>Action</div>
+              </div>
+              {variants.map((variant) => (
+                <div key={variant._id.toString()} className="grid grid-cols-[1.5fr_1fr_1fr] items-center gap-3 border-b border-slate-100 px-5 py-4 last:border-b-0 hover:bg-slate-50">
+                  <div>
+                    <p className="font-bold text-slate-900">{variant.name}</p>
+                    {variant.description && <p className="mt-0.5 text-xs text-slate-500">{variant.description}</p>}
+                    <p className="mt-1 text-sm text-slate-600">{variant.specs}</p>
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900">{variant.price}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">{variant.fuel} · {variant.transmission}</p>
+                  </div>
+                  <div>
+                    <Link
+                      href={`/book-test-drive?model=${encodeURIComponent(model.name)}&variant=${encodeURIComponent(variant.name)}`}
+                      className="inline-flex items-center justify-center rounded-full bg-[#0b3d32] px-4 py-2 text-sm font-bold text-white hover:bg-[#082d25]"
+                    >
+                      Book Now
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {model.brandSlug && (
+          <div className="mt-10 text-center">
+            <Link href={`/brands/${model.brandSlug}`} className="text-sm font-semibold text-sky-600 hover:underline">
+              ← View all {model.brandName} models
+            </Link>
+          </div>
+        )}
       </div>
     </main>
   );

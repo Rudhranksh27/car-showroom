@@ -11,7 +11,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { InventoryMegaMenu, inventoryBrands } from "./InventoryMegaMenu";
+import { InventoryMegaMenu, type BrandLink } from "./InventoryMegaMenu";
 import NotificationDropdown from "./NotificationDropdown";
 
 type NavItem = {
@@ -84,6 +84,7 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [servicesActive, setServicesActive] = useState(false);
+  const [brands, setBrands] = useState<BrandLink[]>([]);
 
   useEffect(() => {
     const refreshLoginState = async () => {
@@ -101,6 +102,15 @@ export default function Navbar() {
     void refreshLoginState();
     window.addEventListener("auth-state-change", handleAuthChange);
     return () => window.removeEventListener("auth-state-change", handleAuthChange);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/catalog/brands")
+      .then((r) => r.json())
+      .then((data: { brands?: { name: string; slug: string }[] }) => {
+        setBrands(data.brands ?? []);
+      })
+      .catch(() => {});
   }, []);
 
   async function handleLogout() {
@@ -184,6 +194,7 @@ export default function Navbar() {
                       href={item.href ?? "/cars"}
                       label={item.label}
                       active={servicesActive}
+                      brands={brands}
                     />
                   );
                 }
@@ -406,7 +417,7 @@ export default function Navbar() {
                       </button>
 
                       <div id="inventory-mobile-panel" className="mt-3 hidden space-y-2">
-                        {inventoryBrands.map((brand) => (
+                        {brands.map((brand) => (
                           <Link
                             key={brand.name}
                             href={`/cars?brand=${brand.slug}`}
