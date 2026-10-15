@@ -8,12 +8,12 @@ const trustPoints = [
   },
   {
     label: "Free home delivery",
-    detail: "Convenient doorstep service",
+    detail: "Straight to your doorstep",
     icon: House,
   },
   {
     label: "Secure booking",
-    detail: "Protected payment process",
+    detail: "Small token, protected payment",
     icon: LockKeyhole,
   },
   {
@@ -31,13 +31,13 @@ const trustPoints = [
 export default function TrustStrip() {
   return (
     <div>
-      <div className="grid overflow-hidden rounded-b-2xl border-x border-b border-[#0b3d32] bg-[#f3f3f3] divide-y divide-[#0b3d32] md:grid-cols-2 md:divide-x md:divide-y-0 lg:grid-cols-5">
+      <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 divide-y divide-slate-200 md:grid-cols-2 md:divide-x md:divide-y-0 lg:grid-cols-5">
         {trustPoints.map(({ label, detail, icon: Icon }) => (
-          <div key={label} className="flex min-h-20 items-center gap-3 px-4 py-4 lg:justify-center lg:px-5">
-            <Icon className={`h-5 w-5 shrink-0 text-sky-600 ${label === "Verified inventory" ? "invisible" : ""}`} strokeWidth={1.8} aria-hidden="true" />
+          <div key={label} className="flex min-h-24 items-center gap-3.5 px-5 py-5 lg:justify-center lg:px-5">
+            <Icon className={`h-6 w-6 shrink-0 text-sky-600 ${label === "Verified inventory" ? "invisible" : ""}`} strokeWidth={1.8} aria-hidden="true" />
             <div>
-              <p className="text-sm font-semibold text-slate-800">{label}</p>
-              <p className="mt-0.5 text-xs text-slate-500">{detail}</p>
+              <p className="text-base font-bold text-slate-800">{label}</p>
+              <p className="mt-0.5 text-sm text-slate-500">{detail}</p>
             </div>
           </div>
         ))}
