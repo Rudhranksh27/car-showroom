@@ -7,6 +7,7 @@ import type { Brand, Model } from "../../lib/catalog-types";
 export const BODY_TYPES = ["SUV", "Hatchback", "Sedan", "MPV", "Minivan", "Commercial", "Electric"];
 const FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric"];
 const TRANSMISSION_TYPES = ["Manual", "Automatic", "AMT", "CVT", "DCT", "iMT"];
+const DRIVE_TYPES = ["", "FWD", "RWD", "AWD", "4WD"];
 const SEGMENTS = ["", "Entry", "Compact", "Mid-size", "Premium", "Luxury", "Performance"];
 
 const inputCls =
@@ -18,6 +19,7 @@ type FormState = {
   slug: string;
   type: string;
   segment: string;
+  drive: string;
   modelYear: string;
   priceMin: string;
   priceMax: string;
@@ -55,6 +57,7 @@ function initialState(model: Model | undefined, brandId: string): FormState {
     slug: model?.slug ?? "",
     type: model?.type ?? "SUV",
     segment: model?.segment ?? "",
+    drive: model?.drive ?? "",
     modelYear: num(model?.modelYear),
     priceMin: model ? String(model.priceMin) : "",
     priceMax: model ? String(model.priceMax) : "",
@@ -150,6 +153,7 @@ export default function ModelForm({ model, brand, brands, onSaved, onCancel }: P
         slug: f.slug.trim(),
         type: f.type,
         segment: f.segment,
+        drive: f.drive,
         modelYear: toNum(f.modelYear),
         fuels: f.fuels,
         transmissions: f.transmissions,
@@ -226,6 +230,11 @@ export default function ModelForm({ model, brand, brands, onSaved, onCancel }: P
             <Field label="Segment">
               <select {...text("segment")} className={inputCls}>
                 {SEGMENTS.map((s) => <option key={s} value={s}>{s || "—"}</option>)}
+              </select>
+            </Field>
+            <Field label="Drive">
+              <select {...text("drive")} className={inputCls}>
+                {DRIVE_TYPES.map((d) => <option key={d} value={d}>{d || "—"}</option>)}
               </select>
             </Field>
             <Field label="Model Year">

@@ -1,20 +1,27 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "../../../lib/auth";
-import { getCarById } from "../../../lib/cars";
+import { resolveCheckoutCar } from "../../../lib/checkout-car";
+import { ALREADY_BOOKED_MESSAGE, cleanString, hasUserBooked } from "../../../lib/bookings";
 
 const BOOKING_AMOUNT = 100000;
 
 export async function POST(request: Request) {
   try {
-    if (!(await getAuthenticatedUser())) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: "Please log in to book a car" }, { status: 401 });
     }
 
-    const { carId } = (await request.json()) as { carId?: string };
-    const car = carId ? getCarById(carId) : undefined;
+    const { carId, carName } = (await request.json()) as { carId?: string; carName?: string };
+    const car = carId ? await resolveCheckoutCar(carId, cleanString(carName) || undefined) : null;
 
     if (!car) {
       return NextResponse.json({ error: "Car not found" }, { status: 404 });
+    }
+
+    // Checked before any payment starts, so nobody pays for a booking that would be rejected.
+    if (await hasUserBooked(user.id, "buy now", car.id, car.name)) {
+      return NextResponse.json({ error: ALREADY_BOOKED_MESSAGE, code: "already-booked" }, { status: 409 });
     }
 
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
