@@ -23,17 +23,86 @@ export default function InventoryRange() {
   const visibleBrands =
     selectedBrand === "All" ? brands : brands.filter((b) => b.name === selectedBrand);
 
+  const stats = (brand: Brand) => [
+    { label: "Models", value: brand.modelCount ?? 0 },
+    { label: "Service Centers", value: brand.serviceCenters },
+    { label: "Sold This Year", value: brand.soldThisYear },
+    { label: "Sold This Month", value: brand.soldThisMonth },
+  ];
+
   return (
-    <section className="w-full bg-[#f3f3f3] px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <section className="w-full border-t border-slate-200 bg-white px-4 py-16 font-[family-name:var(--font-jakarta)] sm:px-6 md:py-24 lg:px-8">
+      <div className="relative isolate mx-auto max-w-[88rem]">
+        <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+            <p className="inline-flex items-center gap-2.5 rounded-full bg-[#0b3d32] px-5 py-2 text-sm font-extrabold uppercase tracking-[0.16em] text-white shadow-lg shadow-[#0b3d32]/25 ring-4 ring-[#1a8978]/15">
+              <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-300" />
+              </span>
+              <span className="relative mr-1 flex h-5 w-[76px] items-center [--car-dist:34px]" aria-hidden="true">
+                <span className="car-run absolute left-0 top-0 flex h-5 w-10 items-center justify-center">
+                  <span className="car-speed absolute -left-3 top-[6px] h-[2px] w-3 rounded-full bg-amber-300/80" />
+                  <span className="car-speed absolute -left-2.5 top-[11px] h-[2px] w-2.5 rounded-full bg-amber-300/60 [animation-delay:0.25s]" />
+                  <svg viewBox="0 0 48 24" className="car-bounce relative h-5 w-10 overflow-visible" fill="none">
+                    {/* body */}
+                    <path
+                      d="M2 17V13.2c0-1.4.9-2.5 2.3-2.8l6.7-1.5 4-4.1c.8-.8 1.8-1.3 3-1.3h11.2c1.3 0 2.5.5 3.4 1.4l3.7 4 5.5 1.2c1.4.3 2.2 1.3 2.2 2.7V17c0 .9-.7 1.6-1.6 1.6H3.6C2.7 18.6 2 17.9 2 17Z"
+                      fill="#fcd34d"
+                    />
+                    {/* lower shading */}
+                    <path d="M2 15h44v2c0 .9-.7 1.6-1.6 1.6H3.6C2.7 18.6 2 17.9 2 17v-2Z" fill="#f59e0b" />
+                    {/* windows */}
+                    <path d="M16.2 9 19 5.9c.4-.4.9-.6 1.5-.6H24V9h-7.8Z" fill="#d6f1ea" />
+                    <path d="M26 5.3h3.2c.6 0 1.1.2 1.5.6L33.6 9H26V5.3Z" fill="#d6f1ea" />
+                    {/* door line + handle */}
+                    <path d="M25 9.4v6.2" stroke="#d97706" strokeWidth=".8" strokeLinecap="round" />
+                    <path d="M27.2 11.6h2.4" stroke="#b45309" strokeWidth=".9" strokeLinecap="round" />
+                    {/* lights */}
+                    <path d="M44.2 11.2h1.6c.5 0 .8.3.8.8v1.2h-2.4v-2Z" fill="#fff" />
+                    <rect x="2.2" y="11.4" width="1.8" height="2" rx=".5" fill="#ef4444" />
+                    {/* wheel arches */}
+                    <circle cx="12.5" cy="18.4" r="5.2" fill="#0b3d32" />
+                    <circle cx="36" cy="18.4" r="5.2" fill="#0b3d32" />
+                    {/* wheels */}
+                    <g className="car-wheel" style={{ transformOrigin: "12.5px 18.4px" }}>
+                      <circle cx="12.5" cy="18.4" r="4" fill="#1f2937" />
+                      <circle cx="12.5" cy="18.4" r="2.2" fill="#e5e7eb" />
+                      <path d="M12.5 16.2v4.4M10.3 18.4h4.4" stroke="#6b7280" strokeWidth=".8" />
+                    </g>
+                    <g className="car-wheel" style={{ transformOrigin: "36px 18.4px" }}>
+                      <circle cx="36" cy="18.4" r="4" fill="#1f2937" />
+                      <circle cx="36" cy="18.4" r="2.2" fill="#e5e7eb" />
+                      <path d="M36 16.2v4.4M33.8 18.4h4.4" stroke="#6b7280" strokeWidth=".8" />
+                    </g>
+                  </svg>
+                </span>
+              </span>
               Browse by Brand
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] text-slate-900 md:text-4xl">
-              Find your perfect match
+            <h2 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-slate-900 md:text-6xl">
+              Find your{" "}
+              <span className="relative inline-block text-[#1a8978]">
+                perfect match
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 300 20"
+                  preserveAspectRatio="none"
+                  className="absolute overflow-visible -bottom-[21px] -left-4 h-5 w-[calc(100%+2rem)] md:-bottom-[25px] md:-left-6 md:h-6 md:w-[calc(100%+3rem)]"
+                >
+                  <path
+                    d="M8 18 Q 150 -6 292 18"
+                    fill="none"
+                    stroke="#0b3d32"
+                    strokeWidth="11"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
             </h2>
+            <p className="mt-9 max-w-xl text-[18px] leading-7 text-slate-600 md:mt-11 md:text-[20px] md:leading-8">
+              Explore trusted manufacturers, their model line-ups and service reach, all in one place.
+            </p>
           </div>
 
           {brands.length > 0 && (
@@ -43,7 +112,7 @@ export default function InventoryRange() {
                   key={name}
                   type="button"
                   onClick={() => setSelectedBrand(name)}
-                  className={`rounded-full border px-3 py-2 text-sm font-semibold transition-colors ${
+                  className={`rounded-full border px-4 py-2 text-[15px] font-semibold transition-colors ${
                     selectedBrand === name
                       ? "border-[#0b3d32] bg-[#0b3d32] text-white"
                       : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
@@ -57,9 +126,9 @@ export default function InventoryRange() {
         </div>
 
         {loading ? (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-72 animate-pulse rounded-[24px] bg-slate-200" />
+              <div key={i} className="h-80 animate-pulse rounded-3xl bg-slate-200" />
             ))}
           </div>
         ) : brands.length === 0 ? (
@@ -67,78 +136,66 @@ export default function InventoryRange() {
             <p className="text-slate-500">No brands added yet. Check back soon.</p>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {visibleBrands.map((brand) => (
-              <article
+              <Link
                 key={brand._id}
-                className="overflow-hidden rounded-[24px] border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70"
+                href={`/brands/${brand.slug}`}
+                className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/60"
               >
-                {/* Brand image / logo area */}
-                <div className="flex h-44 items-center justify-center overflow-hidden rounded-[18px] bg-gradient-to-br from-slate-100 to-slate-200">
-                  {brand.logo ? (
-                    <img
-                      src={brand.logo}
-                      alt={brand.name}
-                      className="h-28 w-full object-contain px-8"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <CarFront className="h-16 w-16 text-slate-300" strokeWidth={1} />
-                      <span className="text-2xl font-black text-slate-300">
-                        {brand.name.charAt(0)}
-                      </span>
-                    </div>
+                {/* Watermark initial */}
+                <span className="pointer-events-none absolute -right-2 -top-6 select-none text-[9rem] font-extrabold leading-none text-slate-900/[0.04]">
+                  {brand.name.charAt(0)}
+                </span>
+
+                <div className="relative flex items-start justify-between">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                    {brand.logo ? (
+                      <img src={brand.logo} alt={brand.name} className="h-full w-full object-contain" />
+                    ) : (
+                      <CarFront className="h-10 w-10 text-slate-300" strokeWidth={1.25} />
+                    )}
+                  </div>
+                  {brand.established && (
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-600">
+                      Est. {brand.established}
+                    </span>
                   )}
                 </div>
 
-                <div className="mt-4 rounded-[18px] border border-slate-200 bg-white p-4">
-                  <h3 className="text-xl font-black tracking-[-0.02em] text-slate-900">
-                    {brand.name}
-                  </h3>
+                <h3 className="relative mt-6 text-2xl font-extrabold tracking-[-0.02em] text-slate-900">
+                  {brand.name}
+                </h3>
+                <p className="relative mt-1 text-base font-medium text-slate-500">
+                  {brand.modelCount ?? 0} {(brand.modelCount ?? 0) === 1 ? "model" : "models"} available
+                </p>
 
-                  {/* Stats grid */}
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <div className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Models</p>
-                      <p className="mt-0.5 text-base font-black text-slate-900">{brand.modelCount ?? 0}</p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Service Centers</p>
-                      <p className="mt-0.5 text-base font-black text-slate-900">
-                        {brand.serviceCenters != null ? brand.serviceCenters.toLocaleString() : "—"}
+                <div className="relative mt-6 grid grid-cols-2 gap-3">
+                  {stats(brand).map((s) => (
+                    <div key={s.label} className="rounded-2xl bg-slate-50 px-4 py-3">
+                      <p className="text-xl font-extrabold text-slate-900">
+                        {s.value != null ? s.value.toLocaleString() : "—"}
+                      </p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        {s.label}
                       </p>
                     </div>
-                    <div className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Sold This Year</p>
-                      <p className="mt-0.5 text-base font-black text-slate-900">
-                        {brand.soldThisYear != null ? brand.soldThisYear.toLocaleString() : "—"}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Sold This Month</p>
-                      <p className="mt-0.5 text-base font-black text-slate-900">
-                        {brand.soldThisMonth != null ? brand.soldThisMonth.toLocaleString() : "—"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <Link
-                    href={`/brands/${brand.slug}`}
-                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0b3d32] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#082d25]"
-                  >
-                    Know more
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  ))}
                 </div>
-              </article>
+
+                <span className="relative mt-6 inline-flex items-center justify-between gap-2 rounded-full bg-[#0b3d32] px-6 py-3.5 text-base font-bold text-white transition group-hover:bg-[#082d25]">
+                  Know more
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
             ))}
           </div>
         )}
 
-        <div className="mt-8 flex items-center justify-end">
+        <div className="mt-10 flex items-center justify-end">
           <Link
             href="/cars"
-            className="inline-flex items-center gap-2 text-sm font-bold text-slate-700 transition hover:text-slate-900"
+            className="inline-flex items-center gap-2 text-base font-bold text-slate-700 transition hover:text-slate-900"
           >
             Explore all inventory
             <ChevronRight className="h-4 w-4" />

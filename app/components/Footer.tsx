@@ -1,99 +1,72 @@
-"use client";
-
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
-import {
-  BriefcaseBusiness,
-  Camera,
-  LockKeyhole,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-  Play,
-  ShieldCheck,
-  Truck,
-  UsersRound,
-  type LucideIcon,
-} from "lucide-react";
-
-const companyLinks = [
-  { label: "About Us", href: "/about" },
-  { label: "Careers", href: "/careers" },
-  { label: "Blog", href: "/blog" },
-  { label: "Press", href: "/press" },
-  { label: "Contact", href: "/book-test-drive" },
-];
+import { ArrowRight, MapPin } from "lucide-react";
 
 const browseLinks = [
   { label: "All Cars", href: "/cars" },
-  { label: "SUV", href: "/cars?category=SUV" },
-  { label: "Sedan", href: "/cars?category=Sedan" },
-  { label: "Hatchback", href: "/cars?category=Hatchback" },
-  { label: "MUV", href: "/cars?category=MUV" },
-  { label: "Luxury", href: "/cars?category=Luxury" },
+  { label: "SUV", href: "/cars?type=SUV" },
+  { label: "Sedan", href: "/cars?type=Sedan" },
+  { label: "Hatchback", href: "/cars?type=Hatchback" },
+  { label: "MUV", href: "/cars?type=MUV" },
+];
+
+const exploreLinks = [
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "Us vs. Dealerships", href: "/#compare" },
+  { label: "Why Choose Us", href: "/#why-choose-us" },
+  { label: "FAQs", href: "/#faq" },
 ];
 
 const supportLinks = [
-  { label: "FAQs", href: "/#faq" },
-  { label: "Booking Help", href: "/book-test-drive" },
-  { label: "Test Drive", href: "/book-test-drive" },
-  { label: "Cancellation", href: "/book-test-drive" },
-  { label: "Track Order", href: "/cars" },
-];
-
-const legalLinks = [
-  { label: "Terms of Service", href: "/terms" },
+  { label: "Book a Test Drive", href: "/book-test-drive" },
+  { label: "Contact Us", href: "/contact" },
   { label: "Privacy Policy", href: "/privacy" },
-  { label: "Refund Policy", href: "/refund-policy" },
-  { label: "Cookie Policy", href: "/cookies" },
 ];
 
-const bottomBarLinks = [
-  { label: "Terms", href: "/terms" },
-  { label: "Privacy", href: "/privacy" },
-  { label: "Cookies", href: "/cookies" },
-  { label: "Sitemap", href: "/sitemap.xml" },
+/* Official brand glyphs (Simple Icons, 24x24 viewBox) */
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/",
+    bg: "bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5]",
+    path: "M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077",
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/",
+    bg: "bg-[#1877F2]",
+    path: "M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z",
+  },
+  {
+    label: "X (Twitter)",
+    href: "https://x.com/",
+    bg: "bg-black ring-1 ring-white/30",
+    path: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z",
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/",
+    bg: "bg-[#FF0000]",
+    path: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/",
+    bg: "bg-[#0A66C2]",
+    path: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z",
+  },
 ];
 
-const contactDetails: { label: string; href?: string; icon: LucideIcon }[] = [
-  { label: "Guwahati, Assam, India", icon: MapPin },
-  { label: "+91-XXXXX-XXXXX", icon: Phone },
-  { label: "support@yoursite.com", href: "mailto:support@yoursite.com", icon: Mail },
-];
-
-const trustBadges = [
-  { label: "Verified Dealers", icon: ShieldCheck },
-  { label: "Secure Payments", icon: LockKeyhole },
-  { label: "Free Home Delivery", icon: Truck },
-];
-
-const paymentMethods = ["Razorpay", "UPI", "Visa", "Mastercard", "RuPay", "NetBanking"];
-
-const socialLinks: { label: string; href: string; icon: LucideIcon }[] = [
-  { label: "Instagram", href: "https://www.instagram.com/", icon: Camera },
-  { label: "Facebook", href: "https://www.facebook.com/", icon: UsersRound },
-  { label: "Twitter", href: "https://twitter.com/", icon: MessageCircle },
-  { label: "YouTube", href: "https://www.youtube.com/", icon: Play },
-  { label: "LinkedIn", href: "https://www.linkedin.com/", icon: BriefcaseBusiness },
-];
-
-function FooterLinkGroup({
-  title,
-  links,
-}: {
-  title: string;
-  links: { label: string; href: string }[];
-}) {
+function FooterLinkGroup({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
     <nav aria-label={title}>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">{title}</h2>
-      <ul className="space-y-2.5">
+      <h2 className="text-sm font-extrabold uppercase tracking-[0.18em] text-white">{title}</h2>
+      <span aria-hidden="true" className="mt-2 block h-0.5 w-8 rounded-full bg-amber-300" />
+      <ul className="mt-5 space-y-3">
         {links.map(({ label, href }) => (
           <li key={label}>
             <Link
               href={href}
-              className="text-sm text-gray-400 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="text-base text-emerald-50/70 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300"
             >
               {label}
             </Link>
@@ -105,151 +78,70 @@ function FooterLinkGroup({
 }
 
 export default function Footer() {
-  const [newsletterMessage, setNewsletterMessage] = useState("");
-
-  function handleNewsletterSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setNewsletterMessage("Newsletter signup is not connected yet.");
-  }
-
   return (
-    <footer className="w-full">
-      {/* Layer 1: newsletter */}
-      <section className="border-b border-gray-100 bg-white py-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 md:flex-row md:items-center md:justify-between">
+    <footer className="w-full bg-[#0b3d32] font-[family-name:var(--font-jakarta)] text-emerald-50">
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-16 sm:px-6 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-[1.4fr_2fr] lg:gap-16">
+          {/* Brand */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 md:text-xl">
-              Get new arrivals &amp; offers in your inbox
-            </h2>
-            <p className="mt-1 text-sm text-gray-600">
-              Be the first to know about new cars and exclusive deals.
-            </p>
-          </div>
-
-          <div className="w-full md:max-w-md">
-            <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleNewsletterSubmit}>
-              <label className="sr-only" htmlFor="footer-newsletter-email">
-                Email address
-              </label>
-              <input
-                id="footer-newsletter-email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="Your email address"
-                className="min-w-0 flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-              />
-              <button
-                type="submit"
-                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
-              >
-                Subscribe
-              </button>
-            </form>
-            <p aria-live="polite" className="mt-2 min-h-4 text-xs text-gray-400">
-              {newsletterMessage || "We respect your privacy. Unsubscribe anytime."}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Layer 2: main footer */}
-      <section className="bg-gray-900 py-14 text-gray-300">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 md:grid-cols-6">
-          <div className="col-span-2">
-            <Link href="/" className="text-xl font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
-              VirtualDrive
+            <Link
+              href="/"
+              className="text-3xl font-extrabold tracking-[-0.03em] text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300"
+            >
+              Virtual<span className="text-amber-300">Drive</span>
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-6 text-gray-400">
-              India&apos;s trusted multi-brand car showroom. Browse, test drive, and book, all with free home delivery.
+            <p className="mt-4 max-w-sm text-base leading-7 text-emerald-50/70">
+              India&apos;s trusted multi-brand car showroom. Browse, test drive and book online, with free home
+              delivery.
             </p>
-            <address className="mt-6 space-y-2 not-italic">
-              {contactDetails.map(({ label, href, icon: Icon }) => {
-                const content = (
-                  <>
-                    <Icon className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
-                    <span>{label}</span>
-                  </>
-                );
 
-                return (
-                  <div key={label} className="flex items-center gap-2 text-sm text-gray-400">
-                    {href ? (
-                      <a href={href} className="inline-flex items-center gap-2 transition-colors duration-200 hover:text-white">
-                        {content}
-                      </a>
-                    ) : (
-                      content
-                    )}
-                  </div>
-                );
-              })}
-            </address>
+            <p className="mt-6 flex items-center gap-2 text-base text-emerald-50/80">
+              <MapPin className="h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
+              Guwahati, Assam, India
+            </p>
+
+            <Link
+              href="/book-test-drive"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-amber-300 px-6 py-3 text-base font-bold text-[#0b3d32] transition hover:bg-white"
+            >
+              Book a Test Drive
+              <ArrowRight className="h-5 w-5" aria-hidden="true" />
+            </Link>
+
+            <nav aria-label="Social media" className="mt-8 flex items-center gap-3">
+              {socialLinks.map(({ label, href, bg, path }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow-lg shadow-black/20 transition duration-200 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 ${bg}`}
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
+                    <path d={path} />
+                  </svg>
+                </a>
+              ))}
+            </nav>
           </div>
 
-          <FooterLinkGroup title="Company" links={companyLinks} />
-          <FooterLinkGroup title="Browse Cars" links={browseLinks} />
-          <FooterLinkGroup title="Support" links={supportLinks} />
-          <FooterLinkGroup title="Legal" links={legalLinks} />
+          {/* Links */}
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
+            <FooterLinkGroup title="Browse Cars" links={browseLinks} />
+            <FooterLinkGroup title="Explore" links={exploreLinks} />
+            <FooterLinkGroup title="Support" links={supportLinks} />
+          </div>
         </div>
-      </section>
 
-      {/* Layer 3: trust, payments, and social links */}
-      <section className="border-t border-gray-800 bg-gray-900 py-6">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center justify-items-center gap-6 px-6 md:grid-cols-[1fr_auto_1fr]">
-          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 md:justify-start">
-            {trustBadges.map(({ label, icon: Icon }) => (
-              <li key={label} className="flex items-center gap-2 text-xs text-gray-400">
-                <Icon className="h-4 w-4 text-gray-400" aria-hidden="true" />
-                {label}
-              </li>
-            ))}
-          </ul>
-
-          <ul aria-label="Accepted payment methods" className="flex flex-wrap items-center justify-center gap-2">
-            {paymentMethods.map((method) => (
-              <li key={method} className="rounded bg-gray-800 px-2 py-1 text-xs text-gray-400">
-                {method}
-              </li>
-            ))}
-          </ul>
-
-          <nav aria-label="Social media" className="flex items-center gap-3 md:justify-self-end">
-            {socialLinks.map(({ label, href, icon: Icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={label}
-                className="rounded-full p-2 text-gray-400 transition-colors duration-200 hover:bg-gray-800 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </a>
-            ))}
-          </nav>
+        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-emerald-50/60 sm:flex-row">
+          <p>&copy; {new Date().getFullYear()} VirtualDrive. All rights reserved.</p>
+          <Link href="/privacy" className="transition-colors hover:text-white">
+            Privacy Policy
+          </Link>
         </div>
-      </section>
-
-      {/* Layer 4: bottom bar */}
-      <section className="border-t border-gray-800 bg-gray-950 py-5">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-6 text-center md:flex-row md:justify-between md:text-left">
-          <p className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} VirtualDrive. All rights reserved.
-          </p>
-          <nav aria-label="Footer legal links" className="flex flex-wrap items-center justify-center gap-4">
-            {bottomBarLinks.map(({ label, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="text-xs text-gray-500 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </section>
+      </div>
     </footer>
   );
 }

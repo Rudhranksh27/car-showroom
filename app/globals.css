@@ -64,3 +64,173 @@ body {
 .customer-bulletin-ticker:hover {
   animation-play-state: paused;
 }
+
+/* How it works: animated connector between steps */
+@keyframes flow-dashes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 28px 0;
+  }
+}
+
+@keyframes flow-travel {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.flow-line {
+  background-image: repeating-linear-gradient(
+    to right,
+    #1a8978 0 14px,
+    transparent 14px 28px
+  );
+  background-size: 28px 3px;
+  background-repeat: repeat-x;
+  animation: flow-dashes 1s linear infinite;
+}
+
+.flow-dot {
+  animation: flow-travel 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-line,
+  .flow-dot {
+    animation: none;
+  }
+}
+
+/* Why choose us: light that travels around the card edge */
+@property --edge-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes edge-spin {
+  to {
+    --edge-angle: 360deg;
+  }
+}
+
+.edge-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--edge-angle),
+    transparent 0 72%,
+    var(--glow, #10b981) 92%,
+    transparent 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: edge-spin 4s linear infinite;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.group:hover > .edge-glow {
+  opacity: 1;
+  animation-duration: 2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-glow {
+    animation: none;
+  }
+}
+
+/* Browse by brand: little car drives to the first letter, turns round, drives back */
+@keyframes car-run {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  42% {
+    transform: translateX(var(--car-dist, 36px)) scaleX(1);
+  }
+  50% {
+    transform: translateX(var(--car-dist, 36px)) scaleX(1);
+  }
+  51% {
+    transform: translateX(var(--car-dist, 36px)) scaleX(-1);
+  }
+  92% {
+    transform: translateX(0) scaleX(-1);
+  }
+  93%, 100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+
+@keyframes car-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes car-speed {
+  0% {
+    opacity: 0;
+    transform: translateX(3px) scaleX(0.4);
+  }
+  40% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-5px) scaleX(1);
+  }
+}
+
+.car-run {
+  animation: car-run 5s ease-in-out infinite;
+}
+
+.car-bounce {
+  animation: car-bounce 0.3s ease-in-out infinite;
+}
+
+.car-speed {
+  animation: car-speed 0.6s ease-out infinite;
+}
+
+@keyframes car-wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.car-wheel {
+  animation: car-wheel-spin 0.45s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .car-run,
+  .car-bounce,
+  .car-wheel,
+  .car-speed {
+    animation: none;
+  }
+}
