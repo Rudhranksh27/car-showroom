@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CarFront } from "lucide-react";
+import { ArrowRight, CarFront } from "lucide-react";
 import type { WithId } from "mongodb";
 import Navbar from "../../components/Navbar";
 import { getBrandsCollection, getModelsCollection } from "../../lib/mongodb-catalog";
@@ -31,68 +31,80 @@ export default async function BrandPage({ params }: Params) {
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-slate-900">
       <Navbar />
-      <div className="mx-auto max-w-screen-xl px-4 py-10 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
         {/* Brand header */}
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
+        <section className="flex flex-col gap-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex items-center gap-5">
             {brand.logo ? (
-              <img src={brand.logo} alt={`${brand.name} logo`} className="h-16 w-16 shrink-0 rounded-2xl bg-white object-contain p-1 shadow-md" />
+              <img src={brand.logo} alt={`${brand.name} logo`} className="h-20 w-20 shrink-0 rounded-2xl bg-slate-50 object-contain p-2 ring-1 ring-slate-200" />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md">
-                <CarFront className="h-8 w-8 text-slate-400" />
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-slate-50 ring-1 ring-slate-200">
+                <CarFront className="h-9 w-9 text-slate-400" />
               </div>
             )}
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-600">Explore the range</p>
-              <h1 className="mt-1 text-3xl font-black text-slate-950 sm:text-4xl">{brand.name}</h1>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Explore the range</p>
+              <h1 className="mt-2 text-4xl font-black tracking-[-0.03em] text-slate-900 md:text-5xl">{brand.name}</h1>
               {brand.established && (
-                <p className="mt-1 text-sm text-slate-500">Established since {brand.established}</p>
+                <p className="mt-2 text-base text-slate-500">Established since {brand.established}</p>
               )}
             </div>
           </div>
+          {models.length > 0 && (
+            <div className="rounded-2xl bg-[#0b3d32] px-6 py-4 text-center text-white">
+              <p className="text-3xl font-black">{models.length}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100/80">
+                Model{models.length !== 1 ? "s" : ""} available
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Models grid */}
         <section className="mt-10">
           {models.length === 0 ? (
-            <div className="rounded-2xl bg-white p-14 text-center shadow-sm">
-              <h2 className="text-lg font-bold text-slate-900">No models available yet</h2>
-              <p className="mt-2 text-sm text-slate-500">Check back soon for {brand.name} models.</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-14 text-center shadow-sm">
+              <h2 className="text-xl font-bold text-slate-900">No models available yet</h2>
+              <p className="mt-2 text-base text-slate-500">Check back soon for {brand.name} models.</p>
             </div>
           ) : (
             <>
-              <p className="mb-6 text-sm text-slate-600">
-                <strong className="font-extrabold text-slate-950">{models.length} model{models.length !== 1 ? "s" : ""}</strong> available
-              </p>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <h2 className="mb-6 text-2xl font-black tracking-[-0.02em] text-slate-900">
+                All {brand.name} models
+              </h2>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {models.map((model) => (
                   <article
                     key={model._id!.toString()}
-                    className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_26px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_14px_34px_rgba(15,23,42,0.13)]"
+                    className="group overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70"
                   >
-                    <Link href={`/cars/${model.slug}`} className="relative flex aspect-4/3 items-center justify-center bg-[#eef2f5] p-6">
+                    <Link href={`/cars/${model.slug}`} className="relative flex aspect-4/3 items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 p-6">
                       {model.image ? (
-                        <img src={model.image} alt={model.name} className="h-full w-full object-contain" />
+                        <img src={model.image} alt={model.name} className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105" />
                       ) : (
-                        <CarFront className="h-20 w-20 text-slate-300" strokeWidth={1.2} />
+                        <CarFront className="h-24 w-24 text-slate-300" strokeWidth={1.2} />
                       )}
+                      <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0b3d32] shadow-sm">
+                        {model.type}
+                      </span>
                     </Link>
-                    <div className="p-5">
+                    <div className="p-6">
                       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                        {model.type} · {model.fuels.join(" / ")}
+                        {model.fuels.join(" / ")}
                       </p>
-                      <h2 className="mt-2 text-lg font-extrabold text-slate-950">{model.name}</h2>
-                      <p className="mt-1 text-xs text-slate-500">Ex-showroom price</p>
-                      <p className="text-lg font-black text-slate-900">
+                      <h3 className="mt-2 text-2xl font-black tracking-[-0.02em] text-slate-900">{model.name}</h3>
+                      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Ex-showroom price</p>
+                      <p className="mt-1 text-xl font-black text-[#0b3d32]">
                         ₹{model.priceMin.toFixed(2)} – {model.priceMax.toFixed(2)} Lakh*
                       </p>
-                      <p className="mt-2 text-xs leading-5 text-slate-500">{model.specs}</p>
+                      <p className="mt-3 text-sm leading-6 text-slate-500">{model.specs}</p>
                       <Link
                         href={`/cars/${model.slug}`}
-                        className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-[#0b3d32] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#082d25]"
+                        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0b3d32] px-5 py-3.5 text-base font-bold text-white shadow-lg shadow-[#0b3d32]/20 transition hover:bg-[#1a8978]"
                       >
                         View Details
+                        <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                       </Link>
                     </div>
                   </article>

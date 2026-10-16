@@ -3,7 +3,7 @@ import CarSlider from "./CarSlider";
 import InventoryRange from "./InventoryRange";
 import TrustStrip from "./TrustStrip";
 import HowItWorks from "./HowItWorks";
-import { BadgeCheck, BadgePercent, CarFront, CircleDollarSign, Headphones, House, ShieldCheck, Sparkles, Wallet } from "lucide-react";
+import { BadgeCheck, BadgePercent, CarFront, CircleDollarSign, Headphones, House, MessageCircleQuestion, ShieldCheck, Sparkles, Wallet } from "lucide-react";
 
 const heroHighlights = [
   {
@@ -25,59 +25,111 @@ const heroHighlights = [
 
 const whyChooseUs = [
   {
-    title: "Quality-checked cars",
-    detail: "Explore verified vehicles with clear details before you decide.",
-    icon: BadgeCheck,
-    iconStyle: "bg-emerald-100 text-emerald-700",
+    title: "Zero dealer add-ons",
+    detail: "No forced accessories or inflated fees. You pay for the car, not the extras.",
+    tag: "Save money",
+    icon: BadgePercent,
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
+  },
+  {
+    title: "Small booking amount",
+    detail: "Reserve your car online in minutes without a big upfront payment.",
+    tag: "Low upfront",
+    icon: Wallet,
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
+  },
+  {
+    title: "Free home delivery",
+    detail: "Skip the showroom queues. Your car is delivered right to your doorstep.",
+    tag: "Save time",
+    icon: House,
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
   },
   {
     title: "Doorstep test drives",
-    detail: "Experience your shortlist on a test drive at a place that suits you.",
+    detail: "Try your shortlisted cars at a place and time that suits you.",
+    tag: "Try first",
     icon: CarFront,
-    iconStyle: "bg-sky-100 text-sky-700",
-  },
-  {
-    title: "Home delivery",
-    detail: "Get your chosen car delivered to your doorstep.",
-    icon: House,
-    iconStyle: "bg-amber-100 text-amber-700",
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
   },
   {
     title: "Transparent pricing",
-    detail: "See vehicle pricing upfront as you compare your options.",
+    detail: "See starting prices upfront and compare cars with no hidden surprises.",
+    tag: "No surprises",
     icon: CircleDollarSign,
-    iconStyle: "bg-rose-100 text-rose-700",
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
+  },
+  {
+    title: "Quality-checked cars",
+    detail: "Verified vehicles with clear specs, variants and details before you decide.",
+    tag: "Verified",
+    icon: BadgeCheck,
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
   },
   {
     title: "Secure booking",
-    detail: "Book with confidence through a protected payment process.",
+    detail: "Your booking and payment are handled through a protected process.",
+    tag: "Protected",
     icon: ShieldCheck,
-    iconStyle: "bg-indigo-100 text-indigo-700",
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
   },
   {
     title: "People-first support",
-    detail: "Get help from selection through booking and delivery.",
+    detail: "Real help from choosing a car through booking and delivery.",
+    tag: "Always helpful",
     icon: Headphones,
-    iconStyle: "bg-teal-100 text-teal-700",
+    glow: "#64748b",
+    gradient: "bg-slate-100 text-slate-800 ring-slate-200 group-hover:bg-slate-900 group-hover:text-white",
+    accent: "bg-slate-800",
+    soft: "bg-slate-100 text-slate-700",
   },
 ];
 
 const frequentlyAskedQuestions = [
   {
+    question: "What exactly do I pay for when I book through you?",
+    answer: "You pay a small booking amount online to reserve your car. We keep dealer-added extras like forced accessories off your bill. Confirm the final on-road price with the team before completing your purchase.",
+  },
+  {
     question: "How do I book a test drive?",
     answer: "Choose a car from the inventory and use its test-drive booking option, or start from the Book a Test Drive link and submit your details.",
   },
-   {
+  {
     question: "Can I take a test drive at home?",
     answer: "Doorstep test drives are available in supported areas. Share your location when booking so the team can confirm availability.",
   },
   {
-    question: "How do I know which cars are available?",
-    answer: "Browse the inventory to see listed vehicles and their displayed prices. The category selector shows categories with available cars; other categories are marked coming soon.",
+    question: "How does home delivery work?",
+    answer: "Once your booking is confirmed, we coordinate with the dealership and arrange for your car to be delivered to your doorstep. The team will share the timeline and next steps with you.",
   },
   {
     question: "Does the displayed price include all charges?",
     answer: "Prices shown are starting prices. Confirm the final on-road price and any applicable charges with the team before completing your purchase.",
+  },
+  {
+    question: "How do I know which cars are available?",
+    answer: "Browse the inventory to see listed vehicles and their displayed prices. The category selector shows categories with available cars; other categories are marked coming soon.",
   },
   {
     question: "What happens after I submit a booking?",
@@ -88,7 +140,7 @@ const frequentlyAskedQuestions = [
 export default function HeroDrive() {
   return (
     <section className="w-full bg-[#f3f3f3] pb-10 md:pb-16">
-      <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#dff1ed] via-[#f5fbf9] to-[#cfe9e3]">
+      <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#dff1ed] via-[#f5fbf9] to-[#cfe9e3] font-[family-name:var(--font-jakarta)]">
         <div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-32 -z-10 h-[26rem] w-[26rem] rounded-full bg-[#1a8978]/25 blur-3xl" />
         <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 right-[-6rem] -z-10 h-[30rem] w-[30rem] rounded-full bg-amber-200/50 blur-3xl" />
         <div
@@ -108,11 +160,11 @@ export default function HeroDrive() {
             Zero dealer add-on fees
           </p>
 
-          <h1 className="mt-6 text-5xl font-black leading-[0.98] tracking-[-0.04em] text-gray-900 md:text-6xl">
+          <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] tracking-[-0.035em] text-gray-900 md:text-6xl xl:text-7xl">
             Pay for the car. <span className="text-[#1a8978]">Not the extras.</span>
           </h1>
 
-          <p className="mt-6 max-w-lg text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-lg text-lg font-medium leading-8 text-gray-600">
             Say goodbye to inflated dealer charges. Reserve your dream car with a small booking amount and we deliver it
             straight to your doorstep.
           </p>
@@ -175,74 +227,112 @@ export default function HeroDrive() {
 
       <InventoryRange />
 
-      <section id="why-choose-us" className="w-full border-t border-slate-200 bg-[#f3f3f3]">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8">
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
-                A better way to buy
-              </p>
-              <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] text-gray-900 md:text-4xl">
-                Why Choose Us
-              </h2>
-            </div>
-            <p className="max-w-lg text-sm leading-6 text-slate-500">
-              From the first search to the moment your car arrives, every step is designed around you.
+      <section id="why-choose-us" className="w-full border-t border-slate-200 bg-[#f3f3f3] font-[family-name:var(--font-jakarta)]">
+        <div className="mx-auto max-w-[88rem] px-4 py-16 sm:px-6 md:py-24 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
+              A better way to buy
+            </p>
+            <h2 className="mt-3 text-4xl font-extrabold tracking-[-0.03em] text-gray-900 md:text-5xl">
+              Why book your car with us
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-slate-600">
+              Buying a car shouldn&apos;t mean hidden charges and showroom hassle. We let you pick, test drive and
+              book online, then deliver the car to your door.
             </p>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {whyChooseUs.map(({ title, detail, icon: Icon, iconStyle }) => (
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {whyChooseUs.map(({ title, detail, tag, icon: Icon, gradient, accent, soft, glow }) => (
               <article
                 key={title}
-                className="border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300"
+                style={{ "--glow": glow } as React.CSSProperties}
+                className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm ring-1 ring-transparent transition duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-2xl hover:shadow-slate-300/60"
               >
-                <div className={`flex h-11 w-11 items-center justify-center ${iconStyle}`}>
-                  <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
+                <span aria-hidden="true" className="edge-glow" />
+                <span
+                  aria-hidden="true"
+                  className={`absolute inset-x-0 top-0 h-1 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 ${accent}`}
+                />
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full opacity-10 blur-2xl transition-opacity duration-300 group-hover:opacity-25 ${accent}`}
+                />
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-white via-white to-slate-50"
+                />
+
+                <div
+                  className={`relative flex h-14 w-14 items-center justify-center rounded-2xl ring-1 transition duration-300 group-hover:scale-105 ${gradient}`}
+                >
+                  <Icon className="h-7 w-7" strokeWidth={1.8} aria-hidden="true" />
                 </div>
-                <h3 className="mt-5 text-base font-bold text-slate-900">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
+
+                <h3 className="relative mt-6 text-xl font-extrabold tracking-[-0.01em] text-slate-900">{title}</h3>
+                <p className="relative mt-3 text-base leading-7 text-slate-600">{detail}</p>
+
+                <span className={`relative mt-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${soft}`}>
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                  {tag}
+                </span>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="faq" className="w-full border-t border-slate-200 bg-[#f3f3f3]">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
-              Helpful answers
+      <section id="faq" className="w-full border-t border-slate-200 bg-white font-[family-name:var(--font-outfit)]">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:px-8">
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
+              Got questions?
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] text-gray-900 md:text-4xl">
-              Frequently Asked Questions
+            <h2 className="mt-3 text-4xl font-bold tracking-[-0.02em] text-gray-900 md:text-5xl">
+              Answers before you <span className="text-[#1a8978]">ask</span>
             </h2>
-            <p className="mt-4 max-w-md text-sm leading-6 text-slate-600">
-              Need a hand choosing your next car? Here are answers to some common questions.
+            <p className="mt-5 max-w-md text-lg leading-8 text-slate-600">
+              Pricing, test drives, booking and delivery: everything people usually want to know before they reserve
+              a car.
             </p>
-            <Link
-              href="/book-test-drive"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0b3d32] hover:text-sky-700"
-            >
-              Have another question? Contact us <span aria-hidden="true">→</span>
-            </Link>
+
+            <div className="mt-8 max-w-md rounded-2xl bg-[#0b3d32] p-6 text-white shadow-xl shadow-[#0b3d32]/20">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
+                <MessageCircleQuestion className="h-6 w-6 text-amber-300" strokeWidth={1.8} aria-hidden="true" />
+              </span>
+              <p className="mt-4 text-xl font-bold">Still have a question?</p>
+              <p className="mt-1 text-sm leading-6 text-emerald-100/80">
+                Our team will help you from choosing a car to delivery.
+              </p>
+              <Link
+                href="/contact"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#0b3d32] transition hover:bg-amber-200"
+              >
+                Talk to us <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </div>
 
-          <div className="divide-y divide-slate-200 border-y border-slate-200 bg-white">
-            {frequentlyAskedQuestions.map(({ question, answer }) => (
-              <details key={question} className="group px-5 py-1">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 py-5 text-left text-sm font-bold text-slate-900 marker:content-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0b3d32]">
-                  {question}
+          <div className="space-y-3">
+            {frequentlyAskedQuestions.map(({ question, answer }, index) => (
+              <details
+                key={question}
+                open={index === 0}
+                className="group rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow open:border-[#1a8978]/40 open:shadow-lg open:shadow-slate-200/70 hover:border-slate-300"
+              >
+                <summary className="flex cursor-pointer list-none items-center gap-4 p-5 text-left marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b3d32] [&::-webkit-details-marker]:hidden">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1a8978]/10 text-sm font-black text-[#1a8978] transition-colors group-open:bg-[#0b3d32] group-open:text-white">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="flex-1 text-lg font-bold text-slate-900">{question}</span>
                   <span
                     aria-hidden="true"
-                    className="shrink-0 text-xl font-normal text-[#0b3d32] transition-transform group-open:rotate-45"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-xl leading-none text-[#0b3d32] transition-transform group-open:rotate-45"
                   >
                     +
                   </span>
                 </summary>
-                <p className="max-w-2xl pb-5 pr-8 text-sm leading-6 text-slate-600">
-                  {answer}
-                </p>
+                <p className="pb-6 pl-[4.5rem] pr-6 text-base leading-7 text-slate-600">{answer}</p>
               </details>
             ))}
           </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  Bell,
+  CarFront,
   ChevronDown,
   Menu,
   Phone,
@@ -74,7 +74,7 @@ const customerBulletins = [
   "🏁 Festive offer — save up to ₹50,000 on select cars",
 ];
 
-const bannerColor = "#071827";
+const bannerColor = "#082d25";
 
 export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -82,6 +82,7 @@ export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [servicesActive, setServicesActive] = useState(false);
   const [brands, setBrands] = useState<BrandLink[]>([]);
@@ -91,8 +92,9 @@ export default function Navbar() {
       try {
         const response = await fetch("/api/auth/session");
         if (!response.ok) throw new Error("Unable to read session");
-        const result = (await response.json()) as { user: { id: string } | null };
+        const result = (await response.json()) as { user: { id: string; name?: string } | null };
         setLoggedIn(Boolean(result.user));
+        setUserName(result.user?.name ?? "");
       } catch {
         setAuthError("Unable to check your login status.");
       }
@@ -119,6 +121,7 @@ export default function Navbar() {
       const response = await fetch("/api/auth/logout", { method: "POST" });
       if (!response.ok) throw new Error("Logout failed");
       setLoggedIn(false);
+      setUserName("");
       setShowUserMenu(false);
       setMobileOpen(false);
     } catch {
@@ -161,31 +164,22 @@ export default function Navbar() {
   const toggleMobile = () => setMobileOpen((value) => !value);
 
   return (
-    <header className="w-full overflow-visible">
+    <header className="w-full overflow-visible font-[family-name:var(--font-jakarta)]">
       <div className={`sticky top-0 z-50 ${servicesActive ? "hidden" : ""}`}>
         <div
-          className={`relative z-50 h-17.5 border-b shadow-[0_1px_0_rgba(15,23,42,0.05)] backdrop-blur-sm transition-colors duration-300 ${
-            servicesActive
-              ? "border-[#0b3d32] bg-[#0b3d32]"
-              : "border-[#0b3d32] bg-[#0b3d32]"
-          }`}
+          className={`relative z-50 h-17.5 border-b border-white/10 bg-[#0b3d32] shadow-lg shadow-black/10 backdrop-blur-sm transition-colors duration-300`}
         >
-          <div className="flex h-full items-center pl-10 pr-4 lg:pr-6">
-            <div className="relative isolate flex h-full w-64 shrink-0 items-center justify-end overflow-hidden bg-[#70f0aa] pr-5">
-              <div
-                className="pointer-events-none absolute inset-0 bg-[#0b3d32]"
-                style={{ clipPath: "polygon(0 0, 0 100%, 100% 100%)" }}
-                aria-hidden="true"
-              />
-              <Link
-                href="/"
-                className="relative z-10 flex items-center whitespace-nowrap text-xl font-black uppercase tracking-[0.28em] text-[#071827] transition-colors duration-300"
-              >
-                VirtualDrive
-              </Link>
-            </div>
+          <div className="mx-auto flex h-full max-w-[120rem] items-center px-4 sm:px-8 lg:px-12">
+            <Link href="/" className="group flex shrink-0 items-center gap-3 whitespace-nowrap">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-300 text-[#0b3d32] shadow-md shadow-black/20 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105">
+                <CarFront className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
+              </span>
+              <span className="text-xl font-black tracking-[-0.02em] text-white">
+                Virtual<span className="text-amber-300">Drive</span>
+              </span>
+            </Link>
 
-            <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
+            <nav className="hidden flex-1 items-center justify-center gap-2 md:flex lg:gap-4">
               {navItems.map((item) => {
                 if (item.label === "Inventory") {
                   return (
@@ -203,9 +197,7 @@ export default function Navbar() {
                   <Link
                     key={item.label}
                     href={item.href ?? "#"}
-                    className={`font-sans text-[17px] font-normal tracking-normal transition-colors duration-200 ${
-                      "rounded-full px-3 py-2 text-white hover:bg-white/10 hover:text-white"
-                    }`}
+                    className="relative rounded-full px-4 py-2 font-sans text-[16px] font-medium tracking-normal text-white/90 transition-colors duration-200 after:absolute after:inset-x-4 after:bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-amber-300 after:transition-transform after:duration-300 hover:text-white hover:after:scale-x-100"
                   >
                     {item.label}
                   </Link>
@@ -219,9 +211,7 @@ export default function Navbar() {
                   type="button"
                   aria-label="Open search"
                   onClick={() => setSearchOpen((value) => !value)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                    "text-white hover:bg-white/10 hover:text-white"
-                  }`}
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
                 >
                   <Search className="h-4 w-4" />
                 </button>
@@ -258,9 +248,17 @@ export default function Navbar() {
                     type="button"
                     aria-label="Open account menu"
                     onClick={() => setShowUserMenu((value) => !value)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0b3d32] text-white transition-colors hover:bg-[#082d25]"
+                    className="flex h-10 items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-white ring-1 ring-white/30 transition-colors hover:bg-white/20"
                   >
-                    <User className="h-4 w-4" />
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-300 text-sm font-extrabold uppercase text-[#0b3d32]">
+                      {userName ? userName.trim().charAt(0) : <User className="h-4 w-4" />}
+                    </span>
+                    {userName && (
+                      <span className="max-w-[9rem] truncate text-sm font-semibold">
+                        {userName.trim().split(/\s+/)[0]}
+                      </span>
+                    )}
+                    <ChevronDown className="h-4 w-4 opacity-70" aria-hidden="true" />
                   </button>
 
                   {showUserMenu && (
@@ -288,13 +286,13 @@ export default function Navbar() {
                 <div className="flex items-center gap-2">
                   <Link
                     href="/login"
-                    className="rounded-full border border-white/40 px-4 py-2 font-sans text-[14px] font-normal tracking-normal text-white transition-colors hover:border-white hover:bg-white/10"
+                    className="rounded-full border border-white/40 px-5 py-2 font-sans text-[14px] font-semibold tracking-normal text-white transition-colors hover:border-white hover:bg-white/10"
                   >
                     Login
                   </Link>
                   <Link
                     href="/register"
-                    className="rounded-full bg-[#0b3d32] px-4 py-2 font-sans text-[14px] font-normal tracking-normal text-white transition-colors hover:bg-[#082d25]"
+                    className="rounded-full bg-amber-300 px-5 py-2 font-sans text-[14px] font-bold tracking-normal text-[#0b3d32] shadow-md shadow-black/20 transition hover:-translate-y-0.5 hover:bg-white"
                   >
                     Sign Up
                   </Link>
@@ -304,10 +302,10 @@ export default function Navbar() {
 
               <Link
                 href="/contact"
-                className="flex items-center gap-2 rounded-full border border-white/40 px-3 py-2 text-white transition-colors hover:border-white hover:bg-white/10"
+                className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-white ring-1 ring-white/25 transition-colors hover:bg-white/20"
               >
                 <Phone className="h-4 w-4" />
-                <span className="font-sans text-[14px] font-normal tracking-normal">
+                <span className="font-sans text-[14px] font-semibold tracking-normal">
                   Call
                 </span>
               </Link>
@@ -317,7 +315,7 @@ export default function Navbar() {
               type="button"
               aria-label="Toggle menu"
               onClick={toggleMobile}
-              className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-slate-700 md:hidden"
+              className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 md:hidden"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -328,36 +326,45 @@ export default function Navbar() {
           className="relative z-40 left-1/2 h-12.5 w-screen ml-[-50vw]"
           style={{ backgroundColor: bannerColor }}
         >
-          <div className="flex h-full items-center overflow-hidden">
-            <div className="customer-bulletin-ticker flex min-w-max items-center gap-12 whitespace-nowrap px-6 sm:px-10">
+          <div className="relative flex h-full items-center overflow-hidden border-b border-white/10">
+            <div className="relative z-10 flex h-full shrink-0 items-center gap-2 bg-amber-300 pl-4 pr-6 text-xs font-extrabold uppercase tracking-[0.18em] text-[#0b3d32] sm:pl-8 [clip-path:polygon(0_0,100%_0,calc(100%-14px)_100%,0_100%)]">
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0b3d32] opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0b3d32]" />
+              </span>
+              Latest
+            </div>
+            <div className="customer-bulletin-ticker flex min-w-max items-center whitespace-nowrap">
               {[...customerBulletins, ...customerBulletins].map((bulletin, index) => (
                 <span
                   key={`${bulletin}-${index}`}
-                  className="text-sm font-medium text-white"
+                  className="flex items-center text-sm font-medium text-white/95"
                 >
-                  {bulletin}
+                  <span className="px-6">{bulletin}</span>
+                  <span className="h-1.5 w-1.5 rotate-45 bg-amber-300/80" aria-hidden="true" />
                 </span>
               ))}
             </div>
+            <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#082d25] to-transparent" />
           </div>
         </div>
       </div>
 
       {servicesActive && (
-        <div className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#071827]/85 text-white shadow-lg backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-4 sm:px-6 lg:px-8">
+        <div className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#0b3d32]/95 text-white shadow-lg backdrop-blur-md">
+        <div className="mx-auto flex h-20 max-w-[88rem] items-center gap-8 px-4 sm:px-6 lg:px-8">
           <Link
             href="/#how-it-works"
-            className="shrink-0 text-sm font-black uppercase tracking-[0.2em] text-white"
+            className="shrink-0 text-lg font-extrabold uppercase tracking-[0.18em] text-white"
           >
             How It Works
           </Link>
-          <nav className="flex min-w-0 flex-1 items-center justify-end gap-5 overflow-x-auto md:gap-8">
+          <nav className="flex min-w-0 flex-1 items-center justify-end gap-6 overflow-x-auto md:gap-10">
             {serviceNavLinks.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="shrink-0 py-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-100 transition-colors hover:text-white"
+                className="shrink-0 py-7 text-[14px] font-bold uppercase tracking-[0.12em] text-emerald-100 transition-colors hover:text-amber-300"
               >
                 {item.label}
               </Link>
@@ -450,6 +457,11 @@ export default function Navbar() {
             <div className="mt-6 space-y-3">
               {loggedIn ? (
                 <>
+                  {userName && (
+                    <p className="rounded-2xl bg-[#0b3d32] px-4 py-3 text-center text-sm font-semibold text-white">
+                      Hi, {userName.trim().split(/\s+/)[0]}
+                    </p>
+                  )}
                   {userMenu.map((item) => (
                     <Link
                       key={item.label}
