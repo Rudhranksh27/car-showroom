@@ -63,6 +63,8 @@ export type SubVariantDoc = {
   fuel: string;
   transmission: string; // e.g. "5-speed Manual"
   paint: string; // "Single Tone" | "Dual Tone"
+  colors?: string[]; // every colour this configuration is sold in (the customer picks one)
+  color?: string; // legacy single colour // e.g. "Pearl Arctic White"; configurations identical except colour are grouped when booking
   price?: string; // falls back to the parent variant's price when blank
   description?: string;
 };
