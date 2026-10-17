@@ -1,13 +1,36 @@
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ObjectId } from "mongodb";
-import { CalendarClock, Cog, Fuel, Gauge, Palette, ShoppingCart } from "lucide-react";
+import { Gauge } from "lucide-react";
 import Navbar from "../../../../components/Navbar";
+import SubVariantPicker from "../../../../components/SubVariantPicker";
 import { getModelsCollection, getVariantsCollection } from "../../../../lib/mongodb-catalog";
 import type { ModelDoc, SubVariantDoc, VariantDoc } from "../../../../lib/catalog-types";
 import type { WithId } from "mongodb";
 
 export const dynamic = "force-dynamic";
+
+// 360° frames live in public/carImages/<model>360/ (e.g. brezza360/brezza-1.PNG … brezza-38.PNG), ordered by number.
+function get360Frames(modelName: string) {
+  const root = join(process.cwd(), "public", "carImages");
+  try {
+    // Pick the "<name>360" folder whose name appears in the model name, e.g. brezza360 for "Maruti-suzuki Brezza".
+    const key = modelName.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const folder = readdirSync(root, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && d.name.toLowerCase().endsWith("360"))
+      .map((d) => d.name)
+      .find((n) => key.includes(n.toLowerCase().slice(0, -3)));
+    if (!folder) return [];
+    return readdirSync(join(root, folder))
+      .filter((f) => /\.(png|jpe?g|webp)$/i.test(f))
+      .sort((a, b) => parseInt(a.match(/\d+/)?.[0] ?? "0") - parseInt(b.match(/\d+/)?.[0] ?? "0"))
+      .map((f) => `/carImages/${folder}/${encodeURIComponent(f)}`);
+  } catch {
+    return [];
+  }
+}
 
 type SubVariantsPageProps = {
   params: Promise<{ id: string; variantId: string }>;
@@ -30,6 +53,7 @@ export default async function SubVariantsPage({ params }: SubVariantsPageProps) 
   if (!model || model.published === false || !variant || variant.modelId !== model._id.toString()) notFound();
 
   const subVariants = variant.subVariants ?? [];
+  const frames360 = get360Frames(model.name);
   const slug = encodeURIComponent(model.slug);
 
   // Group by engine + fuel, e.g. "Petrol · 1462 cc", keeping the admin's order.
@@ -80,54 +104,11 @@ export default async function SubVariantsPage({ params }: SubVariantsPageProps) 
                   <Gauge className="h-5 w-5" />
                 </span>
                 <h2 className="text-2xl font-extrabold tracking-[-0.02em] md:text-3xl">{group}</h2>
-                <span className="rounded-full bg-[#0b3d32] px-3 py-1 text-sm font-bold text-white">{items.length}</span>
+                <span className="rounded-full bg-[#0b3d32] px-3 py-1 text-sm font-bold text-white">{items.length} version{items.length === 1 ? "" : "s"}</span>
               </div>
 
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                {items.map((sub) => (
-                  <article key={sub.id} className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/60">
-                    <div className="flex items-start justify-between gap-4">
-                      <h3 className="text-xl font-extrabold tracking-[-0.01em] md:text-2xl">{sub.name}</h3>
-                      <p className="shrink-0 rounded-full bg-[#0b3d32]/10 px-4 py-1.5 text-lg font-extrabold text-[#0b3d32]">{sub.price || variant.price}</p>
-                    </div>
-                    {sub.description && <p className="mt-3 text-base leading-7 text-slate-600">{sub.description}</p>}
-
-                    <dl className="mt-6 grid grid-cols-2 gap-3">
-                      {[
-                        ["Engine", sub.engine, Gauge],
-                        ["Fuel", sub.fuel, Fuel],
-                        ["Transmission", sub.transmission, Cog],
-                        ["Paint", sub.paint, Palette],
-                      ].map(([label, value, Icon]) => {
-                        const RowIcon = Icon as typeof Gauge;
-                        return (
-                          <div key={label as string} className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0b3d32] shadow-sm ring-1 ring-slate-200"><RowIcon className="h-5 w-5" strokeWidth={1.75} /></span>
-                            <div className="min-w-0">
-                              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{label as string}</dt>
-                              <dd className="text-base font-extrabold leading-snug text-slate-900">{value as string}</dd>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </dl>
-
-                    <div className="mt-7 flex flex-wrap gap-3">
-                      <Link
-                        href={`/book-test-drive?model=${slug}&variant=${encodeURIComponent(sub.name)}#book`}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#0b3d32] px-5 py-3.5 text-base font-bold text-[#0b3d32] transition hover:bg-[#0b3d32]/5"
-                      >
-                        <CalendarClock className="h-5 w-5" />Book Test Drive
-                      </Link>
-                      <Link
-                        href={`/cars/${slug}/checkout?variant=${encodeURIComponent(sub.name)}`}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#0b3d32] px-5 py-3.5 text-base font-bold text-white shadow-lg shadow-[#0b3d32]/20 transition hover:-translate-y-0.5 hover:bg-[#082d25]"
-                      >
-                        <ShoppingCart className="h-5 w-5" />Book Now
-                      </Link>
-                    </div>
-                  </article>
-                ))}
+              <div className="mt-6">
+                <SubVariantPicker subs={items} variantPrice={variant.price} slug={slug} modelName={model.name} image={model.image} frames360={frames360} />
               </div>
             </section>
           ))

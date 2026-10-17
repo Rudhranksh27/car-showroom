@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, Plus, Trash2, X } from "lucide-react";
 import type { Variant } from "../../lib/catalog-types";
-import { PAINT_OPTIONS } from "../../lib/sub-variants";
+import { PAINT_OPTIONS, subColors } from "../../lib/sub-variants";
 
 const FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric"];
 
@@ -16,12 +16,13 @@ type Row = {
   fuel: string;
   transmission: string;
   paint: string;
+  colors: string;
   price: string;
   description: string;
 };
 
 const emptyRow = (): Row => ({
-  name: "", engine: "", fuel: "Petrol", transmission: "", paint: "Single Tone", price: "", description: "",
+  name: "", engine: "", fuel: "Petrol", transmission: "", paint: "Single Tone", colors: "", price: "", description: "",
 });
 
 export default function SubVariantsEditor({ variant, onSaved, onCancel }: {
@@ -30,7 +31,7 @@ export default function SubVariantsEditor({ variant, onSaved, onCancel }: {
   const [rows, setRows] = useState<Row[]>(() =>
     (variant.subVariants ?? []).map((s) => ({
       name: s.name, engine: s.engine, fuel: s.fuel, transmission: s.transmission,
-      paint: s.paint, price: s.price ?? "", description: s.description ?? "",
+      paint: s.paint, colors: subColors(s).join(", "), price: s.price ?? "", description: s.description ?? "",
     })),
   );
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export default function SubVariantsEditor({ variant, onSaved, onCancel }: {
       <div>
         <p className="text-xs font-bold uppercase tracking-widest text-amber-400">Sub-variants of {variant.name}</p>
         <p className="mt-1 text-xs text-slate-500">
-          Each one is a bookable configuration (engine, transmission, paint). Leave Price blank to use {variant.price}.
+          Each one is a bookable configuration (engine, transmission, paint). List every colour this configuration is sold in; customers pick one from those. Leave Price blank to use {variant.price}.
         </p>
       </div>
 
@@ -106,6 +107,11 @@ export default function SubVariantsEditor({ variant, onSaved, onCancel }: {
               <select value={r.paint} onChange={(e) => update(i, { paint: e.target.value })} className={inputCls}>
                 {PAINT_OPTIONS.map((p) => <option key={p}>{p}</option>)}
               </select>
+            </label>
+            <label className="block text-sm font-semibold text-slate-300">
+              Colours (comma separated)
+              <input value={r.colors} onChange={(e) => update(i, { colors: e.target.value })}
+                placeholder="e.g. Pearl Arctic White, Midnight Black" className={inputCls} />
             </label>
             <label className="block text-sm font-semibold text-slate-300">
               Price

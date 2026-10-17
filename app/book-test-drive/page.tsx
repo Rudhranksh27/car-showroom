@@ -7,7 +7,7 @@ import type { Car } from "../lib/cars";
 import { getModelsCollection, getVariantsCollection } from "../lib/mongodb-catalog";
 import type { ModelDoc, VariantDoc } from "../lib/catalog-types";
 import { splitOptions } from "../lib/variant-options";
-import { findBookable } from "../lib/sub-variants";
+import { findBookable, subColors } from "../lib/sub-variants";
 import type { WithId } from "mongodb";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +47,7 @@ type BookTestDrivePageProps = {
     variant?: string | string[];
     fuel?: string | string[];
     transmission?: string | string[];
+    color?: string | string[];
   }>;
 };
 
@@ -67,11 +68,12 @@ async function loadModel(slug: string) {
 }
 
 export default async function BookTestDrivePage({ searchParams }: BookTestDrivePageProps) {
-  const { model: modelParam, variant: variantParam, fuel: fuelParam, transmission: transmissionParam } = await searchParams;
+  const { model: modelParam, variant: variantParam, fuel: fuelParam, transmission: transmissionParam, color: colorParam } = await searchParams;
   const modelSlug = typeof modelParam === "string" ? modelParam : undefined;
   const selectedVariantName = typeof variantParam === "string" ? variantParam : undefined;
   const selectedFuel = typeof fuelParam === "string" ? fuelParam : undefined;
   const selectedTransmission = typeof transmissionParam === "string" ? transmissionParam : undefined;
+  const selectedColor = typeof colorParam === "string" ? colorParam : undefined;
 
   const loaded = modelSlug ? await loadModel(modelSlug) : null;
 
@@ -82,31 +84,63 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
         (!selectedFuel || splitOptions(v.fuel).some((o) => sameOption(o, selectedFuel))) &&
         (!selectedTransmission || splitOptions(v.transmission).some((o) => sameOption(o, selectedTransmission))),
     );
-    const selectedVariant = variants.find((v) => v.name === selectedVariantName);
+    const selectedVariant = selectedVariantName ? variants.find((v) => sameOption(v.name, selectedVariantName)) : undefined;
     // The chosen name can also be a sub-variant (e.g. "ZXi MT Dual Tone") of any variant.
     const found = !selectedVariant && selectedVariantName ? findBookable(model.name, allVariants, selectedVariantName) : null;
     const selectedSub = found?.sub ? found : null;
 
+    // The variant whose sub-variants the Fuel / Transmission filters narrow down.
+    const parentVariant = selectedVariantName
+      ? (allVariants.find((v) => sameOption(v.name, selectedVariantName)) ?? found?.variant ?? null)
+      : null;
+    // One entry per sub-variant and colour; the id carries the colour (see findBookable).
+    const parentSubs = (parentVariant?.subVariants ?? []).flatMap((s) =>
+      subColors(s).length ? subColors(s).map((c) => ({ ...s, id: `${s.id}~${c}`, color: c })) : [s],
+    );
+    const matchingSubs = parentSubs.filter(
+      (s) =>
+        (!selectedFuel || splitOptions(s.fuel).some((o) => sameOption(o, selectedFuel))) &&
+        (!selectedTransmission || splitOptions(s.transmission).some((o) => sameOption(o, selectedTransmission))) &&
+        (!selectedColor || (!!s.color && sameOption(s.color, selectedColor))),
+    );
+
+    // Configurations identical in everything but colour count as one card; the Colour filter picks which to book.
+    const subGroups = Object.values(
+      matchingSubs.reduce<Record<string, typeof matchingSubs>>((acc, s) => {
+        const key = [s.engine, s.fuel, s.transmission, s.paint, s.price || parentVariant?.price || ""].map((x) => x.trim().toLowerCase()).join("|");
+        (acc[key] ??= []).push(s);
+        return acc;
+      }, {}),
+    );
+
     // Build a link that sets (or, if already active, clears) one filter while keeping the rest.
-    const filterHref = (key: "fuel" | "transmission", value: string) => {
-      const next = { fuel: selectedFuel, transmission: selectedTransmission };
+    const filterHref = (key: "fuel" | "transmission" | "color", value: string) => {
+      const next = { fuel: selectedFuel, transmission: selectedTransmission, color: selectedColor };
       next[key] = next[key] && sameOption(next[key], value) ? undefined : value;
       const params = new URLSearchParams({ model: model.slug });
       if (next.fuel) params.set("fuel", next.fuel);
       if (next.transmission) params.set("transmission", next.transmission);
-      return `/book-test-drive?${params.toString()}#variants`;
+      if (next.color) params.set("color", next.color);
+      // Keep the chosen variant so its sub-variants get filtered instead of being lost.
+      if (parentVariant) params.set("variant", parentVariant.name);
+      return `/book-test-drive?${params.toString()}${parentVariant && parentSubs.length ? "#sub-variants" : "#variants"}`;
     };
     const variantHref = (variantName: string) => {
       const params = new URLSearchParams({ model: model.slug });
       if (selectedFuel) params.set("fuel", selectedFuel);
       if (selectedTransmission) params.set("transmission", selectedTransmission);
+      if (selectedColor) params.set("color", selectedColor);
       params.set("variant", variantName);
       return `/book-test-drive?${params.toString()}#book`;
     };
-    const fuelOptions = [...new Set([...model.fuels, ...allVariants.flatMap((v) => splitOptions(v.fuel))].filter(Boolean))];
-    const transmissionOptions = [
-      ...new Set([...(model.transmissions ?? []), ...allVariants.flatMap((v) => splitOptions(v.transmission))].filter(Boolean)),
-    ];
+    // With a variant that has sub-variants chosen, offer only the options that variant actually has.
+    const fuelOptions = parentSubs.length
+      ? [...new Set(parentSubs.flatMap((s) => splitOptions(s.fuel)).filter(Boolean))]
+      : [...new Set([...model.fuels, ...allVariants.flatMap((v) => splitOptions(v.fuel))].filter(Boolean))];
+    const transmissionOptions = parentSubs.length
+      ? [...new Set(parentSubs.flatMap((s) => splitOptions(s.transmission)).filter(Boolean))]
+      : [...new Set([...(model.transmissions ?? []), ...allVariants.flatMap((v) => splitOptions(v.transmission))].filter(Boolean))];
+    const colorOptions = [...new Set(parentSubs.map((s) => s.color?.trim()).filter((c): c is string => !!c))];
     const chipClass = (active: boolean) =>
       `rounded-full border px-4 py-2 text-sm font-semibold transition ${
         active ? "border-[#0b3d32] bg-[#0b3d32] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
@@ -154,7 +188,7 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
 
             <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-800 ring-1 ring-slate-200 transition group-hover:bg-slate-900 group-hover:text-white" aria-hidden="true"><Search className="h-7 w-7" strokeWidth={1.8} /></span>
-              <h2 className="mt-6 text-xl font-extrabold tracking-[-0.01em]">Fuel &amp; transmission</h2>
+              <h2 className="mt-6 text-xl font-extrabold tracking-[-0.01em]">Fuel, transmission &amp; colour</h2>
               <p className="mt-2 text-base leading-7 text-slate-600">Select an option to filter the {model.name} variants below.</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {fuelOptions.map((option) => {
@@ -177,6 +211,21 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
                     );
                   })}
                 </div>
+              )}
+              {colorOptions.length > 0 && (
+                <>
+                  <p className="mt-4 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Colour</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {colorOptions.map((option) => {
+                      const active = !!selectedColor && sameOption(selectedColor, option);
+                      return (
+                        <Link key={`color-${option}`} href={filterHref("color", option)} aria-pressed={active} className={chipClass(active)}>
+                          {option}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
 
@@ -241,6 +290,49 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
                     </Link>
                   );
                 })}
+              </div>
+            )}
+
+            {parentVariant && parentSubs.length > 0 && (
+              <div id="sub-variants" className="mt-12 scroll-mt-24">
+                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">{parentVariant.name} configurations</p>
+                <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.02em]">
+                  {subGroups.length} option{subGroups.length === 1 ? "" : "s"} match
+                  {[selectedFuel, selectedTransmission, selectedColor].filter(Boolean).map((f) => ` · ${f}`).join("")}
+                </h2>
+                {matchingSubs.length === 0 ? (
+                  <p className="mt-4 text-base text-slate-600">No {parentVariant.name} configuration matches. Try a different combination.</p>
+                ) : (
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {subGroups.map((group) => {
+                      const first = group[0];
+                      const active = group.find((g) => g.id === selectedVariantName);
+                      return (
+                        <div
+                          key={first.id}
+                          className={`rounded-2xl border bg-white p-5 shadow-sm ${active ? "border-[#0b3d32] ring-2 ring-[#0b3d32]/25" : "border-slate-200"}`}
+                        >
+                          <h3 className="text-lg font-extrabold text-slate-900">{first.name}</h3>
+                          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.1em] text-slate-400">
+                            {first.fuel} · {first.transmission} · {first.paint}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">{first.engine}</p>
+                          <p className="mt-3 text-lg font-extrabold text-slate-900">{first.price || parentVariant.price}</p>
+                          {group.length === 1 ? (
+                            <Link href={variantHref(first.id)} className="mt-4 inline-block text-sm font-bold text-[#0b3d32] hover:underline">
+                              {first.color ? `Book ${first.color} →` : "Book this →"}
+                            </Link>
+                          ) : (
+                            <p className="mt-4 text-sm text-slate-600">
+                              <span className="font-bold text-slate-900">{group.length} colours:</span> {group.map((g) => g.color || "Standard").join(", ")}.
+                              <span className="block text-slate-500">Pick a colour in the filter above to book.</span>
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 

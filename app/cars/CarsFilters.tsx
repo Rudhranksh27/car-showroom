@@ -48,14 +48,14 @@ export default function CarsFilters({
   const hasFilters = currentFuel || currentType || currentBudget;
 
   return (
-    <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Filter by</p>
+        <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">Filter by</p>
         {hasFilters && (
           <button
             type="button"
             onClick={() => navigate({ fuel: "", type: "", budget: "" })}
-            className="text-xs font-semibold text-red-500 hover:text-red-700"
+            className="text-sm font-bold text-[#0b3d32] hover:underline"
           >
             Clear filters
           </button>
@@ -64,14 +64,14 @@ export default function CarsFilters({
 
       {/* Budget */}
       <div className="mb-4">
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">Budget</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Budget</p>
         <div className="flex flex-wrap gap-2">
           {BUDGET_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               type="button"
               onClick={() => navigate({ budget: opt.value })}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                 currentBudget === opt.value
                   ? "border-[#0b3d32] bg-[#0b3d32] text-white"
                   : "border-slate-200 text-slate-600 hover:border-slate-400"
@@ -86,12 +86,12 @@ export default function CarsFilters({
       {/* Fuel type */}
       {fuelTypes.length > 0 && (
         <div className="mb-4">
-          <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">Fuel Type</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Fuel Type</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => navigate({ fuel: "" })}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                 !currentFuel
                   ? "border-[#0b3d32] bg-[#0b3d32] text-white"
                   : "border-slate-200 text-slate-600 hover:border-slate-400"
@@ -104,7 +104,7 @@ export default function CarsFilters({
                 key={fuel}
                 type="button"
                 onClick={() => navigate({ fuel: currentFuel === fuel ? "" : fuel })}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                   currentFuel === fuel
                     ? "border-[#0b3d32] bg-[#0b3d32] text-white"
                     : "border-slate-200 text-slate-600 hover:border-slate-400"
@@ -120,12 +120,12 @@ export default function CarsFilters({
       {/* Body type */}
       {bodyTypes.length > 0 && (
         <div>
-          <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">Body Type</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Body Type</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => navigate({ type: "" })}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                 !currentType
                   ? "border-[#0b3d32] bg-[#0b3d32] text-white"
                   : "border-slate-200 text-slate-600 hover:border-slate-400"
@@ -138,7 +138,7 @@ export default function CarsFilters({
                 key={t}
                 type="button"
                 onClick={() => navigate({ type: currentType === t ? "" : t })}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                   currentType === t
                     ? "border-[#0b3d32] bg-[#0b3d32] text-white"
                     : "border-slate-200 text-slate-600 hover:border-slate-400"
