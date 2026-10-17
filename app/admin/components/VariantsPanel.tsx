@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, Check, X, Layers } from "lucide-react";
 import type { Model, Variant } from "../../lib/catalog-types";
+import { joinOptions, splitOptions } from "../../lib/variant-options";
+import VariantOptionChips, { FUEL_TYPES, TRANSMISSION_TYPES } from "./VariantOptionChips";
 import SubVariantsEditor from "./SubVariantsEditor";
 
-const FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric"];
-const TRANSMISSIONS = ["Manual", "Automatic", "AMT", "CVT", "DCT"];
 
 function AddVariantForm({ models, onSaved, onCancel }: {
   models: Model[]; onSaved: () => void; onCancel: () => void;
@@ -16,8 +16,8 @@ function AddVariantForm({ models, onSaved, onCancel }: {
   const priceRef = useRef<HTMLInputElement>(null);
   const specsRef = useRef<HTMLInputElement>(null);
   const [modelId, setModelId] = useState("");
-  const [fuel, setFuel] = useState("Petrol");
-  const [transmission, setTransmission] = useState("Manual");
+  const [fuel, setFuel] = useState<string[]>(["Petrol"]);
+  const [transmission, setTransmission] = useState<string[]>(["Manual"]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,8 +31,8 @@ function AddVariantForm({ models, onSaved, onCancel }: {
         modelName: selectedModel?.name ?? "",
         name: nameRef.current?.value.trim() ?? "",
         description: descRef.current?.value.trim() ?? "",
-        fuel,
-        transmission,
+        fuel: joinOptions(fuel, FUEL_TYPES),
+        transmission: joinOptions(transmission, TRANSMISSION_TYPES),
         price: priceRef.current?.value.trim() ?? "",
         specs: specsRef.current?.value.trim() ?? "",
       };
@@ -70,22 +70,8 @@ function AddVariantForm({ models, onSaved, onCancel }: {
           </label>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm font-semibold text-slate-300">
-            Fuel *
-            <select value={fuel} onChange={(e) => setFuel(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-            >
-              {FUEL_TYPES.map((f) => <option key={f}>{f}</option>)}
-            </select>
-          </label>
-          <label className="block text-sm font-semibold text-slate-300">
-            Transmission *
-            <select value={transmission} onChange={(e) => setTransmission(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-            >
-              {TRANSMISSIONS.map((t) => <option key={t}>{t}</option>)}
-            </select>
-          </label>
+          <VariantOptionChips label="Fuel" options={FUEL_TYPES} value={fuel} onChange={setFuel} />
+          <VariantOptionChips label="Transmission" options={TRANSMISSION_TYPES} value={transmission} onChange={setTransmission} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm font-semibold text-slate-300">
@@ -130,8 +116,8 @@ function EditVariantForm({ variant, onSaved, onCancel }: {
   const descRef = useRef<HTMLInputElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
   const specsRef = useRef<HTMLInputElement>(null);
-  const [fuel, setFuel] = useState(variant.fuel);
-  const [transmission, setTransmission] = useState(variant.transmission);
+  const [fuel, setFuel] = useState<string[]>(splitOptions(variant.fuel));
+  const [transmission, setTransmission] = useState<string[]>(splitOptions(variant.transmission));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -141,8 +127,8 @@ function EditVariantForm({ variant, onSaved, onCancel }: {
       const body = {
         name: nameRef.current?.value.trim() ?? "",
         description: descRef.current?.value.trim() ?? "",
-        fuel,
-        transmission,
+        fuel: joinOptions(fuel, FUEL_TYPES),
+        transmission: joinOptions(transmission, TRANSMISSION_TYPES),
         price: priceRef.current?.value.trim() ?? "",
         specs: specsRef.current?.value.trim() ?? "",
       };
@@ -175,22 +161,8 @@ function EditVariantForm({ variant, onSaved, onCancel }: {
         </label>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-semibold text-slate-300">
-          Fuel *
-          <select value={fuel} onChange={(e) => setFuel(e.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-          >
-            {FUEL_TYPES.map((f) => <option key={f}>{f}</option>)}
-          </select>
-        </label>
-        <label className="block text-sm font-semibold text-slate-300">
-          Transmission *
-          <select value={transmission} onChange={(e) => setTransmission(e.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-          >
-            {TRANSMISSIONS.map((t) => <option key={t}>{t}</option>)}
-          </select>
-        </label>
+        <VariantOptionChips label="Fuel" options={FUEL_TYPES} value={fuel} onChange={setFuel} />
+        <VariantOptionChips label="Transmission" options={TRANSMISSION_TYPES} value={transmission} onChange={setTransmission} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-slate-300">
@@ -344,7 +316,7 @@ export default function VariantsPanel() {
                         {variant.description && <p className="text-xs text-slate-400">{variant.description}</p>}
                       </td>
                       <td className="hidden px-4 py-3 text-slate-400 md:table-cell">{variant.modelName}</td>
-                      <td className="hidden px-4 py-3 text-slate-400 sm:table-cell">{variant.fuel} / {variant.transmission}</td>
+                      <td className="hidden px-4 py-3 text-slate-400 sm:table-cell">{splitOptions(variant.fuel).join(", ")} / {splitOptions(variant.transmission).join(", ")}</td>
                       <td className="px-4 py-3 font-semibold text-white">{variant.price}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">

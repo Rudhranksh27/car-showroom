@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, Check, X, Layers } from "lucide-react";
 import type { Variant } from "../../lib/catalog-types";
+import { joinOptions, splitOptions } from "../../lib/variant-options";
+import VariantOptionChips, { FUEL_TYPES, TRANSMISSION_TYPES } from "./VariantOptionChips";
 import SubVariantsEditor from "./SubVariantsEditor";
 
-const FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Hybrid", "Electric"];
-const TRANSMISSIONS = ["Manual", "Automatic", "AMT", "CVT", "DCT"];
 
 // Uncontrolled add form — refs collect values on submit, React never touches input DOM values
 function AddVariantForm({ modelId, modelName, modelSlug, onSaved, onCancel }: {
@@ -17,8 +17,8 @@ function AddVariantForm({ modelId, modelName, modelSlug, onSaved, onCancel }: {
   const descRef = useRef<HTMLInputElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
   const specsRef = useRef<HTMLInputElement>(null);
-  const [fuel, setFuel] = useState("Petrol");
-  const [transmission, setTransmission] = useState("Manual");
+  const [fuel, setFuel] = useState<string[]>(["Petrol"]);
+  const [transmission, setTransmission] = useState<string[]>(["Manual"]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,8 +30,8 @@ function AddVariantForm({ modelId, modelName, modelSlug, onSaved, onCancel }: {
         modelId, modelSlug, modelName,
         name: nameRef.current?.value.trim() ?? "",
         description: descRef.current?.value.trim() ?? "",
-        fuel,
-        transmission,
+        fuel: joinOptions(fuel, FUEL_TYPES),
+        transmission: joinOptions(transmission, TRANSMISSION_TYPES),
         price: priceRef.current?.value.trim() ?? "",
         specs: specsRef.current?.value.trim() ?? "",
       };
@@ -72,22 +72,8 @@ function AddVariantForm({ modelId, modelName, modelSlug, onSaved, onCancel }: {
           </label>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          <label className="block text-sm font-semibold text-slate-300">
-            Fuel *
-            <select value={fuel} onChange={(e) => setFuel(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-            >
-              {FUEL_TYPES.map((f) => <option key={f}>{f}</option>)}
-            </select>
-          </label>
-          <label className="block text-sm font-semibold text-slate-300">
-            Transmission *
-            <select value={transmission} onChange={(e) => setTransmission(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-            >
-              {TRANSMISSIONS.map((t) => <option key={t}>{t}</option>)}
-            </select>
-          </label>
+          <VariantOptionChips label="Fuel" options={FUEL_TYPES} value={fuel} onChange={setFuel} />
+          <VariantOptionChips label="Transmission" options={TRANSMISSION_TYPES} value={transmission} onChange={setTransmission} />
           <label className="block text-sm font-semibold text-slate-300">
             Price * <span className="text-xs font-normal text-slate-500">(e.g. ₹8.34 Lakh*)</span>
             <input ref={priceRef} defaultValue="" placeholder="₹8.34 Lakh*"
@@ -126,8 +112,8 @@ function EditVariantForm({ variant, onSaved, onCancel }: {
   const descRef = useRef<HTMLInputElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
   const specsRef = useRef<HTMLInputElement>(null);
-  const [fuel, setFuel] = useState(variant.fuel);
-  const [transmission, setTransmission] = useState(variant.transmission);
+  const [fuel, setFuel] = useState<string[]>(splitOptions(variant.fuel));
+  const [transmission, setTransmission] = useState<string[]>(splitOptions(variant.transmission));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -138,8 +124,8 @@ function EditVariantForm({ variant, onSaved, onCancel }: {
       const body = {
         name: nameRef.current?.value.trim() ?? "",
         description: descRef.current?.value.trim() ?? "",
-        fuel,
-        transmission,
+        fuel: joinOptions(fuel, FUEL_TYPES),
+        transmission: joinOptions(transmission, TRANSMISSION_TYPES),
         price: priceRef.current?.value.trim() ?? "",
         specs: specsRef.current?.value.trim() ?? "",
       };
@@ -173,22 +159,8 @@ function EditVariantForm({ variant, onSaved, onCancel }: {
         </label>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <label className="block text-sm font-semibold text-slate-300">
-          Fuel *
-          <select value={fuel} onChange={(e) => setFuel(e.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-          >
-            {FUEL_TYPES.map((f) => <option key={f}>{f}</option>)}
-          </select>
-        </label>
-        <label className="block text-sm font-semibold text-slate-300">
-          Transmission *
-          <select value={transmission} onChange={(e) => setTransmission(e.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-400"
-          >
-            {TRANSMISSIONS.map((t) => <option key={t}>{t}</option>)}
-          </select>
-        </label>
+        <VariantOptionChips label="Fuel" options={FUEL_TYPES} value={fuel} onChange={setFuel} />
+        <VariantOptionChips label="Transmission" options={TRANSMISSION_TYPES} value={transmission} onChange={setTransmission} />
         <label className="block text-sm font-semibold text-slate-300">
           Price *
           <input ref={priceRef} defaultValue={variant.price} placeholder="₹8.34 Lakh*"
@@ -326,7 +298,7 @@ export default function ModelVariantsPanel({ modelId, modelName, modelSlug }: Pr
                         {variant.description && <p className="text-xs text-slate-400">{variant.description}</p>}
                         <p className="mt-0.5 text-xs text-slate-500">{variant.specs}</p>
                       </td>
-                      <td className="hidden px-4 py-3 text-slate-400 sm:table-cell">{variant.fuel} / {variant.transmission}</td>
+                      <td className="hidden px-4 py-3 text-slate-400 sm:table-cell">{splitOptions(variant.fuel).join(", ")} / {splitOptions(variant.transmission).join(", ")}</td>
                       <td className="px-4 py-3 font-semibold text-white">{variant.price}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">

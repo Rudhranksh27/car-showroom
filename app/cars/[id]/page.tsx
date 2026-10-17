@@ -80,15 +80,15 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const hasHighlights = highlights.length > 0;
 
   return (
-    <main className="min-h-screen bg-[#f6f8fa] text-slate-900">
+    <main className="min-h-screen bg-[#f3f3f3] font-[family-name:var(--font-jakarta)] text-slate-900">
       <Navbar />
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <nav className="flex flex-wrap items-center gap-2 text-base text-slate-500" aria-label="Breadcrumb">
-          <Link href="/cars" className="font-semibold transition-colors hover:text-sky-600">Inventory</Link>
+          <Link href="/cars" className="font-semibold transition-colors hover:text-[#0b3d32]">Inventory</Link>
           {model.brandSlug && (
             <>
               <span aria-hidden="true">/</span>
-              <Link href={`/brands/${model.brandSlug}`} className="font-semibold transition-colors hover:text-sky-600">{model.brandName}</Link>
+              <Link href={`/brands/${model.brandSlug}`} className="font-semibold transition-colors hover:text-[#0b3d32]">{model.brandName}</Link>
             </>
           )}
           <span aria-hidden="true">/</span>
@@ -104,11 +104,11 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             interior={model.interiorImages ?? []}
           />
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">
+          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">
               {model.brandName} · {model.type}
             </p>
-            <h1 className="mt-3 text-4xl font-black tracking-[-0.03em] md:text-5xl">{model.name}</h1>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.03em] md:text-5xl">{model.name}</h1>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {model.discontinued ? (
@@ -129,7 +129,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             </div>
 
             <div className="mt-6 border-t border-slate-100 pt-6">
-              <p className="text-4xl font-black text-slate-900">
+              <p className="text-4xl font-extrabold text-slate-900">
                 ₹{model.priceMin.toFixed(2)} – {model.priceMax.toFixed(2)} <span className="text-xl font-bold text-slate-500">Lakh*</span>
               </p>
               <p className="mt-1 text-base text-slate-500">Ex-showroom · {model.fuels.join(" · ")}</p>
@@ -138,7 +138,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 href={`/book-test-drive?model=${encodeURIComponent(model.slug)}`}
-                className="inline-flex flex-1 items-center justify-center rounded-full bg-[#0b3d32] px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-[#0b3d32]/20 transition hover:bg-[#082d25]"
+                className="inline-flex flex-1 items-center justify-center rounded-full bg-[#0b3d32] px-6 py-4 text-base font-bold text-white shadow-lg shadow-[#0b3d32]/20 transition hover:-translate-y-0.5 hover:bg-[#082d25]"
               >
                 Book Test Drive
               </Link>
@@ -153,12 +153,12 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             {(model.brochureUrl || model.websiteUrl) && (
               <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-base font-semibold">
                 {model.brochureUrl && (
-                  <a href={model.brochureUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sky-700 hover:underline">
+                  <a href={model.brochureUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#0b3d32] hover:underline">
                     <FileText className="h-4 w-4" />Download brochure
                   </a>
                 )}
                 {model.websiteUrl && (
-                  <a href={model.websiteUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sky-700 hover:underline">
+                  <a href={model.websiteUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#0b3d32] hover:underline">
                     <ExternalLink className="h-4 w-4" />Official website
                   </a>
                 )}
@@ -166,21 +166,21 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             )}
 
             <p className="mt-6 border-t border-slate-100 pt-5 text-base text-slate-500">
-              Questions? Call <a href="tel:+919999999999" className="font-semibold text-slate-900 hover:text-sky-600">+91 99999 99999</a>
+              Questions? Call <a href="tel:+919999999999" className="font-semibold text-slate-900 hover:text-[#0b3d32]">+91 99999 99999</a>
             </p>
           </div>
         </section>
 
         {/* About & highlights */}
         {(model.overview || hasHighlights) && (
-          <section className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <section className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-6 py-5 sm:px-8">
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Overview</p>
-              <h2 className="mt-1 text-3xl font-black tracking-tight">About the {model.name}</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Overview</p>
+              <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.02em] md:text-4xl">About the {model.name}</h2>
             </div>
 
             {model.overview && (
-              <p className="whitespace-pre-line px-6 pt-6 text-[17px] leading-7 text-slate-600 sm:px-8 sm:pt-8">
+              <p className="whitespace-pre-line px-6 pt-6 text-lg leading-8 text-slate-600 sm:px-8 sm:pt-8">
                 {model.overview}
               </p>
             )}
@@ -191,12 +191,12 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {highlights.map((h, i) => {
                     return (
-                      <li key={`${h.title}-${i}`} className="flex items-start gap-3 rounded-xl bg-slate-50 px-4 py-4">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                          <Check className="h-3 w-3 text-emerald-700" strokeWidth={3} />
+                      <li key={`${h.title}-${i}`} className="flex items-start gap-3 rounded-2xl bg-slate-50 px-5 py-4">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0b3d32]/10">
+                          <Check className="h-3 w-3 text-[#0b3d32]" strokeWidth={3} />
                         </span>
                         <div>
-                          <p className="text-base font-black text-slate-900">{h.title}</p>
+                          <p className="text-base font-extrabold text-slate-900">{h.title}</p>
                           {h.description && <p className="mt-1 text-base leading-6 text-slate-600">{h.description}</p>}
                         </div>
                       </li>
@@ -209,10 +209,10 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
         )}
 
         {/* Specifications */}
-        <section className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <section className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-6 py-5 sm:px-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Technical details</p>
-            <h2 className="mt-1 text-3xl font-black tracking-tight">Specifications</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Technical details</p>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.02em] md:text-4xl">Specifications</h2>
           </div>
           <div className={`grid divide-y divide-slate-100 ${specGroups.length === 1 ? "" : specGroups.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"} md:divide-x md:divide-y-0`}>
             {specGroups.map((g) => {
@@ -223,11 +223,11 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b3d32]/10 text-[#0b3d32]">
                       <Icon className="h-5 w-5" />
                     </span>
-                    <h3 className="text-lg font-black tracking-tight">{g.title}</h3>
+                    <h3 className="text-lg font-extrabold tracking-tight">{g.title}</h3>
                   </div>
                   <dl className="mt-5 space-y-2">
                     {g.rows.map(([label, value, RowIcon]) => (
-                      <div key={label} className="flex items-center gap-4 rounded-lg bg-slate-50 px-4 py-3">
+                      <div key={label} className="flex items-center gap-4 rounded-2xl bg-slate-50 px-4 py-3">
                         {RowIcon && (
                           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#0b3d32] shadow-sm ring-1 ring-slate-200">
                             <RowIcon className="h-5 w-5" strokeWidth={1.75} />
@@ -249,15 +249,15 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
         {/* Variants */}
         {variants.length > 0 && (
           <section className="mt-12">
-            <h2 className="text-3xl font-black tracking-tight text-slate-900">
+            <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-slate-900 md:text-4xl">
               {model.name} — Variants &amp; Pricing
             </h2>
             <p className="mt-2 text-base text-slate-500">
               ₹{model.priceMin.toFixed(2)} – {model.priceMax.toFixed(2)} Lakh (ex-showroom)
             </p>
 
-            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold uppercase tracking-[0.08em] text-slate-500">
+            <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3 text-sm font-extrabold uppercase tracking-[0.1em] text-slate-500">
                 <div>Variant</div>
                 <div>Ex-Showroom Price</div>
                 <div>Action</div>
@@ -269,7 +269,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                 <div key={variant._id.toString()} className="grid grid-cols-[1.5fr_1fr_1fr] items-center gap-3 border-b border-slate-100 px-5 py-4 last:border-b-0 hover:bg-slate-50">
                   <div>
                     {subCount > 0 ? (
-                      <Link href={variantHref} className="font-bold text-slate-900 hover:text-sky-600">{variant.name}</Link>
+                      <Link href={variantHref} className="font-bold text-slate-900 hover:text-[#0b3d32]">{variant.name}</Link>
                     ) : (
                       <p className="font-bold text-slate-900">{variant.name}</p>
                     )}
@@ -306,7 +306,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
         {model.brandSlug && (
           <div className="mt-10 text-center">
-            <Link href={`/brands/${model.brandSlug}`} className="text-base font-semibold text-sky-600 hover:underline">
+            <Link href={`/brands/${model.brandSlug}`} className="text-base font-bold text-[#0b3d32] hover:underline">
               ← View all {model.brandName} models
             </Link>
           </div>

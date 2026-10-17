@@ -17,7 +17,7 @@ export default function ModelGallery({ name, main, exterior, interior }: Props) 
 
   if (tabs.length === 0) {
     return (
-      <div className="flex aspect-4/3 items-center justify-center rounded-2xl border border-slate-200 bg-white">
+      <div className="flex aspect-4/3 items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-sm">
         <CarFront className="h-28 w-28 text-slate-300" strokeWidth={0.8} />
       </div>
     );
@@ -28,7 +28,7 @@ export default function ModelGallery({ name, main, exterior, interior }: Props) 
 
   return (
     <div>
-      <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm p-4">
         <img src={current} alt={`${name} ${active.label.toLowerCase()}`} className="h-full w-full object-contain" />
         {tabs.length > 1 && (
           <div className="absolute left-3 top-3 inline-flex rounded-full bg-white/90 p-1 shadow-sm ring-1 ring-slate-200 backdrop-blur">
