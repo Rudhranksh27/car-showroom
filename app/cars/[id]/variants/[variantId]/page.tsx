@@ -1,36 +1,15 @@
-import { readdirSync } from "node:fs";
-import { join } from "node:path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ObjectId } from "mongodb";
 import { Gauge } from "lucide-react";
 import Navbar from "../../../../components/Navbar";
+import { get360Frames } from "../../../../lib/car-360";
 import SubVariantPicker from "../../../../components/SubVariantPicker";
 import { getModelsCollection, getVariantsCollection } from "../../../../lib/mongodb-catalog";
 import type { ModelDoc, SubVariantDoc, VariantDoc } from "../../../../lib/catalog-types";
 import type { WithId } from "mongodb";
 
 export const dynamic = "force-dynamic";
-
-// 360° frames live in public/carImages/<model>360/ (e.g. brezza360/brezza-1.PNG … brezza-38.PNG), ordered by number.
-function get360Frames(modelName: string) {
-  const root = join(process.cwd(), "public", "carImages");
-  try {
-    // Pick the "<name>360" folder whose name appears in the model name, e.g. brezza360 for "Maruti-suzuki Brezza".
-    const key = modelName.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const folder = readdirSync(root, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && d.name.toLowerCase().endsWith("360"))
-      .map((d) => d.name)
-      .find((n) => key.includes(n.toLowerCase().slice(0, -3)));
-    if (!folder) return [];
-    return readdirSync(join(root, folder))
-      .filter((f) => /\.(png|jpe?g|webp)$/i.test(f))
-      .sort((a, b) => parseInt(a.match(/\d+/)?.[0] ?? "0") - parseInt(b.match(/\d+/)?.[0] ?? "0"))
-      .map((f) => `/carImages/${folder}/${encodeURIComponent(f)}`);
-  } catch {
-    return [];
-  }
-}
 
 type SubVariantsPageProps = {
   params: Promise<{ id: string; variantId: string }>;

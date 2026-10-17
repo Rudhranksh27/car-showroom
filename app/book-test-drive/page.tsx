@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { CarFront, Check, Search, Star } from "lucide-react";
 import Navbar from "../components/Navbar";
+import BookingFinder from "./BookingFinder";
+import CarShowcase from "../components/CarShowcase";
+import { get360Frames } from "../lib/car-360";
 import TestDriveForm from "../components/TestDriveForm";
-import { carBrands, cars } from "../lib/cars";
 import type { Car } from "../lib/cars";
 import { getModelsCollection, getVariantsCollection } from "../lib/mongodb-catalog";
 import type { ModelDoc, VariantDoc } from "../lib/catalog-types";
 import { splitOptions } from "../lib/variant-options";
-import { findBookable, subColors } from "../lib/sub-variants";
+import { findBookable, fullCarName, subColors } from "../lib/sub-variants";
 import type { WithId } from "mongodb";
 
 export const dynamic = "force-dynamic";
-
-const popularCars = cars.slice(0, 6);
 
 const stepLabels = ["Choose a car", "Pick a variant", "Confirm details"];
 
@@ -48,6 +48,9 @@ type BookTestDrivePageProps = {
     fuel?: string | string[];
     transmission?: string | string[];
     color?: string | string[];
+    brand?: string | string[];
+    type?: string | string[];
+    budget?: string | string[];
   }>;
 };
 
@@ -68,11 +71,14 @@ async function loadModel(slug: string) {
 }
 
 export default async function BookTestDrivePage({ searchParams }: BookTestDrivePageProps) {
-  const { model: modelParam, variant: variantParam, fuel: fuelParam, transmission: transmissionParam, color: colorParam } = await searchParams;
+  const { model: modelParam, variant: variantParam, fuel: fuelParam, transmission: transmissionParam, color: colorParam, brand: brandRaw, type: typeRaw, budget: budgetRaw } = await searchParams;
   const modelSlug = typeof modelParam === "string" ? modelParam : undefined;
   const selectedVariantName = typeof variantParam === "string" ? variantParam : undefined;
   const selectedFuel = typeof fuelParam === "string" ? fuelParam : undefined;
   const selectedTransmission = typeof transmissionParam === "string" ? transmissionParam : undefined;
+  const brandParam = typeof brandRaw === "string" ? brandRaw : undefined;
+  const typeParam = typeof typeRaw === "string" ? typeRaw : undefined;
+  const budgetParam = typeof budgetRaw === "string" ? budgetRaw : undefined;
   const selectedColor = typeof colorParam === "string" ? colorParam : undefined;
 
   const loaded = modelSlug ? await loadModel(modelSlug) : null;
@@ -140,6 +146,15 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
     const transmissionOptions = parentSubs.length
       ? [...new Set(parentSubs.flatMap((s) => splitOptions(s.transmission)).filter(Boolean))]
       : [...new Set([...(model.transmissions ?? []), ...allVariants.flatMap((v) => splitOptions(v.transmission))].filter(Boolean))];
+    // The colour shown on the car: the one in the chosen configuration, else the Colour filter (if the variant has it).
+    const idColor = selectedVariantName?.includes("~") ? selectedVariantName.split("~").slice(1).join("~") : "";
+    const previewColor = [idColor, selectedColor ?? ""]
+      .map((c) => parentSubs.map((s) => s.color).find((x) => x && c && sameOption(x, c)) ?? "")
+      .find(Boolean) ?? "";
+    const frames360 = get360Frames(model.name);
+    const showcase = (
+      <CarShowcase image={model.image} frames360={frames360} color={previewColor} label={selectedSub?.name ?? (selectedVariant ? fullCarName(model.name, selectedVariant.name) : model.name)} />
+    );
     const colorOptions = [...new Set(parentSubs.map((s) => s.color?.trim()).filter((c): c is string => !!c))];
     const chipClass = (active: boolean) =>
       `rounded-full border px-4 py-2 text-sm font-semibold transition ${
@@ -148,7 +163,7 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
     const bookingCar: Car | null = selectedVariant
       ? {
           id: model.slug,
-          name: selectedVariant.name.startsWith(model.name) ? selectedVariant.name : `${model.name} ${selectedVariant.name}`,
+          name: fullCarName(model.name, selectedVariant.name),
           brand: model.brandName,
           category: model.type,
           price: selectedVariant.price,
@@ -172,7 +187,8 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
         <Navbar />
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Test drive booking</p>
+            <Link href="/book-test-drive#results" className="text-base font-bold text-[#0b3d32] hover:underline">← Choose a different car</Link>
+            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.28em] text-primary">Test drive booking</p>
             <h1 className="mt-4 text-4xl font-extrabold tracking-[-0.03em] md:text-5xl">Which {model.name} variant would you like to test drive?</h1>
             <p className="mt-4 text-lg leading-8 text-slate-600">Choose a variant. You can confirm your preferred time and dealer in the next step.</p>
           <Steps current={bookingCar ? 3 : 2} />
@@ -294,7 +310,8 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
             )}
 
             {parentVariant && parentSubs.length > 0 && (
-              <div id="sub-variants" className="mt-12 scroll-mt-24">
+              <div id="sub-variants" className="mt-12 grid scroll-mt-24 gap-8 lg:grid-cols-[1fr_26rem] lg:items-start">
+              <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">{parentVariant.name} configurations</p>
                 <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.02em]">
                   {subGroups.length} option{subGroups.length === 1 ? "" : "s"} match
@@ -303,7 +320,7 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
                 {matchingSubs.length === 0 ? (
                   <p className="mt-4 text-base text-slate-600">No {parentVariant.name} configuration matches. Try a different combination.</p>
                 ) : (
-                  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
                     {subGroups.map((group) => {
                       const first = group[0];
                       const active = group.find((g) => g.id === selectedVariantName);
@@ -334,14 +351,17 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
                   </div>
                 )}
               </div>
+              <div className="lg:sticky lg:top-24">{showcase}</div>
+              </div>
             )}
 
             {bookingCar && (
               <div id="book" className="mt-12 scroll-mt-24">
                 <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Your details</p>
                 <h2 className="mt-3 mb-7 text-3xl font-extrabold tracking-[-0.03em]">Book a test drive for {bookingCar.name}</h2>
-                <div className="max-w-3xl">
+                <div className={parentSubs.length > 0 ? "max-w-3xl" : "grid gap-8 lg:grid-cols-[1fr_26rem] lg:items-start"}>
                   <TestDriveForm car={bookingCar} />
+                  {parentSubs.length === 0 && showcase}
                 </div>
               </div>
             )}
@@ -358,66 +378,9 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Test drive booking</p>
           <h1 className="mt-4 text-4xl font-extrabold tracking-[-0.03em] md:text-5xl">Which car would you like to test drive?</h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">Choose a starting point. You can confirm your preferred car, time, and dealer in the next step.</p>
-          <Steps current={1} />
+          <p className="mt-4 text-lg leading-8 text-slate-600">Filter by brand, body type, fuel, transmission or budget, then pick a car and book it straight away.</p>
         </div>
-
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          <Link href="/cars?purpose=test-drive" className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-300/60">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-800 ring-1 ring-slate-200 transition group-hover:bg-slate-900 group-hover:text-white" aria-hidden="true"><CarFront className="h-7 w-7" strokeWidth={1.8} /></span>
-            <h2 className="mt-6 text-xl font-extrabold tracking-[-0.01em]">Pick from available stock</h2>
-            <p className="mt-2 text-base leading-7 text-slate-600">Browse every car currently available for a test drive.</p>
-            <span className="mt-6 inline-block text-base font-bold text-[#0b3d32]">Browse stock →</span>
-          </Link>
-
-          <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-800 ring-1 ring-slate-200 transition group-hover:bg-slate-900 group-hover:text-white" aria-hidden="true"><Search className="h-7 w-7" strokeWidth={1.8} /></span>
-            <h2 className="mt-6 text-xl font-extrabold tracking-[-0.01em]">Search by brand</h2>
-            <p className="mt-2 text-base leading-7 text-slate-600">Start with a brand you already have in mind.</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {carBrands.slice(0, 4).map((brand) => (
-                <Link key={brand} href={`/cars?brand=${encodeURIComponent(brand)}`} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400">
-                  {brand}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <Link href="#popular-models" className="group rounded-3xl border border-slate-900 bg-slate-900 p-7 text-white shadow-sm transition duration-300 hover:-translate-y-1 hover:bg-slate-800 hover:shadow-2xl hover:shadow-slate-400/40">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-amber-300 ring-1 ring-white/20" aria-hidden="true"><Star className="h-7 w-7" strokeWidth={1.8} /></span>
-            <h2 className="mt-6 text-xl font-extrabold tracking-[-0.01em]">Pick from popular models</h2>
-            <p className="mt-2 text-base leading-7 text-slate-300">See six customer-favorite models ready for a closer look.</p>
-            <span className="mt-6 inline-block text-base font-bold text-amber-300">See popular cars ↓</span>
-          </Link>
-        </div>
-
-        <section id="popular-models" className="mt-24 scroll-mt-24">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Popular models</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] md:text-4xl">Choose your car</h2>
-            </div>
-            <Link href="/cars?purpose=test-drive" className="hidden text-base font-bold text-[#0b3d32] hover:underline sm:block">View all stock →</Link>
-          </div>
-
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {popularCars.map((car) => (
-              <Link key={car.id} href={`/cars/${car.id}/book-test-drive`} className="group flex flex-col items-start overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-300/60">
-                <div className="flex aspect-[1.6] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-slate-200 p-6">
-                  <img src={car.image} alt={car.alt} className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105" />
-                </div>
-                <div className="w-full px-6 pt-5">
-                  <h3 className="text-xl font-extrabold tracking-[-0.01em] text-slate-900">{car.name}</h3>
-                  <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">{car.brand}</p>
-                </div>
-                <div className="mt-4 flex w-full items-center justify-between gap-4 px-6 pb-6">
-                  <span className="text-lg font-extrabold text-slate-900">{car.price}</span>
-                  <span className="inline-flex items-center rounded-full bg-[#0b3d32] px-4 py-2 text-sm font-bold text-white transition group-hover:bg-[#082d25]">Book test drive →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <BookingFinder filters={{ brand: brandParam, type: typeParam, fuel: selectedFuel, transmission: selectedTransmission, budget: budgetParam }} />
       </div>
     </main>
   );
