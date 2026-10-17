@@ -5,8 +5,7 @@ import Link from "next/link";
 import { CalendarClock, Cog, Fuel, Gauge, Palette, ShoppingCart } from "lucide-react";
 import type { SubVariantDoc } from "../lib/catalog-types";
 import { subColors } from "../lib/sub-variants";
-import CarColorPreview from "./CarColorPreview";
-import Car360Viewer from "./Car360Viewer";
+import CarShowcase from "./CarShowcase";
 import { parseTones } from "../lib/car-recolor";
 
 type Field = { label: string; get: (s: SubVariantDoc) => string; Icon: typeof Gauge };
@@ -32,7 +31,6 @@ export default function SubVariantPicker({ subs: rawSubs, variantPrice, slug, mo
     subColors(s).length ? subColors(s).map((c) => ({ ...s, id: `${s.id}~${c}`, color: c })) : [s],
   );
   const [picked, setPicked] = useState<Record<string, string>>({});
-  const [view360, setView360] = useState(false);
 
   // Walk the cascade: keep a pick only while it is still available among the remaining options.
   let candidates = subs;
@@ -136,26 +134,8 @@ export default function SubVariantPicker({ subs: rawSubs, variantPrice, slug, mo
       </div>
       </div>
 
-      <div className="order-first flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-slate-50 to-slate-200 p-6 lg:order-last">
-        {view360 && frames360.length > 0 ? (
-          <Car360Viewer frames={frames360} color={sub.color ?? ""} label={`${modelName} ${sub.name}`} />
-        ) : image ? (
-          <CarColorPreview color={sub.color ?? ""} label={`${modelName} ${sub.name}`} src={image} />
-        ) : (
-          <p className="text-sm text-slate-500">No car photo available.</p>
-        )}
-        <p className="mt-3 text-center text-sm font-bold text-slate-700">
-          {sub.color || "Choose a colour"}
-          {sub.color?.includes("/") && <span className="block text-xs font-semibold text-slate-400">Body / roof</span>}
-        </p>
-        {frames360.length > 0 && (
-          <button
-            type="button" onClick={() => setView360((v) => !v)} aria-pressed={view360}
-            className="mt-4 inline-flex items-center gap-2 rounded-full border-2 border-[#0b3d32] px-5 py-2.5 text-sm font-bold text-[#0b3d32] transition hover:bg-[#0b3d32]/5"
-          >
-            {view360 ? "← Back to photo" : "360° view"}
-          </button>
-        )}
+      <div className="order-first lg:order-last">
+        <CarShowcase image={image} frames360={frames360} color={sub.color ?? ""} label={`${modelName} ${sub.name}`} />
       </div>
     </article>
   );
