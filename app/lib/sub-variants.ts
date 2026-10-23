@@ -52,8 +52,15 @@ export function sanitizeSubVariants(raw: unknown): SubVariantDoc[] | string {
 }
 
 /** Full display name used for bookings, e.g. "Maruti Suzuki Brezza ZXi MT". */
-export const fullCarName = (modelName: string, name: string) =>
-  name.startsWith(modelName) ? name : `${modelName} ${name}`;
+export function fullCarName(modelName: string, name: string) {
+  if (name.startsWith(modelName)) return name;
+  // Drop words the variant name repeats from the end of the model name ("Maruti Brezza" + "Brezza ZXI").
+  const m = modelName.split(/\s+/), n = name.split(/\s+/);
+  for (let k = Math.min(m.length, n.length); k > 0; k--) {
+    if (m.slice(-k).join(" ").toLowerCase() === n.slice(0, k).join(" ").toLowerCase()) return `${modelName} ${n.slice(k).join(" ")}`.trim();
+  }
+  return `${modelName} ${name}`;
+}
 
 /** Finds a variant or sub-variant by its plain or full name, with the price/name to book it under. */
 export function findBookable(modelName: string, variants: VariantDoc[], wantedRaw: string) {
