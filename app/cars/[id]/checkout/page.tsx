@@ -35,7 +35,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
         <p className="mt-10 text-xs font-semibold uppercase tracking-[0.28em] text-sky-600">Mock checkout</p>
         <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">Book your {checkoutCar.name}</h1>
         <p className="mt-3 text-slate-500">Pay the booking token securely in Razorpay Test Mode.</p>
-        <CarCheckout car={checkoutCar} />
+        <CarCheckout car={checkoutCar} variant={typeof variant === "string" ? variant : undefined} />
       </div>
     </main>
   );

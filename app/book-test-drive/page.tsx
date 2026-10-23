@@ -85,11 +85,21 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
 
   if (loaded) {
     const { model, variants: allVariants } = loaded;
+    // A variant matches through its own options or any of its sub-variants' (same rule as the finder).
+    const optionsOf = (v: WithId<VariantDoc>, field: "fuel" | "transmission") => [
+      ...splitOptions(v[field]),
+      ...(v.subVariants ?? []).flatMap((s) => splitOptions(s[field])),
+    ];
     const variants = allVariants.filter(
       (v) =>
-        (!selectedFuel || splitOptions(v.fuel).some((o) => sameOption(o, selectedFuel))) &&
-        (!selectedTransmission || splitOptions(v.transmission).some((o) => sameOption(o, selectedTransmission))),
+        (!selectedFuel || optionsOf(v, "fuel").some((o) => sameOption(o, selectedFuel))) &&
+        (!selectedTransmission || optionsOf(v, "transmission").some((o) => sameOption(o, selectedTransmission))),
     );
+    // Show only the chosen option on a card, not every fuel / transmission the variant also offers.
+    const shownOptions = (v: WithId<VariantDoc>, field: "fuel" | "transmission", chosen?: string) => {
+      const all = [...new Set(optionsOf(v, field))];
+      return (chosen ? all.filter((o) => sameOption(o, chosen)) : splitOptions(v[field])).join(" / ");
+    };
     const selectedVariant = selectedVariantName ? variants.find((v) => sameOption(v.name, selectedVariantName)) : undefined;
     // The chosen name can also be a sub-variant (e.g. "ZXi MT Dual Tone") of any variant.
     const found = !selectedVariant && selectedVariantName ? findBookable(model.name, allVariants, selectedVariantName) : null;
@@ -173,7 +183,8 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
       : selectedSub
         ? {
             id: model.slug,
-            name: selectedSub.name,
+            // e.g. "Maruti Suzuki Brezza ZXi MT Dual Tone (Pearl White) · 5-speed Manual", so 5- and 6-speed bookings differ.
+            name: [selectedSub.name, selectedSub.sub.transmission].filter(Boolean).join(" · "),
             brand: model.brandName,
             category: model.type,
             price: selectedSub.price,
@@ -295,7 +306,7 @@ export default async function BookTestDrivePage({ searchParams }: BookTestDriveP
                       )}
                       <div className="w-full px-6 pt-5">
                         <h3 className="text-xl font-extrabold tracking-[-0.01em] text-slate-900">{variant.name}</h3>
-                        <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">{splitOptions(variant.fuel).join(" / ")} · {splitOptions(variant.transmission).join(" / ")}</p>
+                        <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">{shownOptions(variant, "fuel", selectedFuel)} · {shownOptions(variant, "transmission", selectedTransmission)}</p>
                       </div>
                       <div className="mt-4 flex w-full items-center justify-between gap-4 px-6 pb-6">
                         <span className="text-lg font-extrabold text-slate-900">{variant.price}</span>
