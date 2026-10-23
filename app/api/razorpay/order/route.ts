@@ -3,7 +3,7 @@ import { getAuthenticatedUser } from "../../../lib/auth";
 import { resolveCheckoutCar } from "../../../lib/checkout-car";
 import { ALREADY_BOOKED_MESSAGE, cleanString, hasUserBooked } from "../../../lib/bookings";
 
-const BOOKING_AMOUNT = 100000;
+const BOOKING_AMOUNT = 1000000; // paise (₹10,000)
 
 export async function POST(request: Request) {
   try {
@@ -12,8 +12,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please log in to book a car" }, { status: 401 });
     }
 
-    const { carId, carName } = (await request.json()) as { carId?: string; carName?: string };
-    const car = carId ? await resolveCheckoutCar(carId, cleanString(carName) || undefined) : null;
+    const { carId, carName, variant } = (await request.json()) as { carId?: string; carName?: string; variant?: string };
+    const wanted = cleanString(variant) || cleanString(carName) || undefined;
+    const car = carId ? await resolveCheckoutCar(carId, wanted) : null;
 
     if (!car) {
       return NextResponse.json({ error: "Car not found" }, { status: 404 });

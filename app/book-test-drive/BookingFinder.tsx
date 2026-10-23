@@ -173,7 +173,11 @@ export default async function BookingFinder({ filters, modelSlug }: { filters: F
                     {fullCarName(it.model.name, it.variant.name)}
                   </h3>
                   <p className="mt-1 text-sm font-semibold text-slate-500">
-                    {[it.fuels.join(" / "), it.transmissions.join(" / ")].filter(Boolean).join(" · ")}
+                    {/* A chosen fuel / transmission shows alone, not every option the variant also offers. */}
+                    {[
+                      filters.fuel ? it.fuels.filter((f) => same(f, filters.fuel)) : it.fuels,
+                      filters.transmission ? it.transmissions.filter((t) => same(t, filters.transmission)) : it.transmissions,
+                    ].map((list) => list.join(" / ")).filter(Boolean).join(" · ")}
                   </p>
                 </div>
                 <div className="mt-4 flex w-full items-center justify-between gap-4 px-6 pb-6">

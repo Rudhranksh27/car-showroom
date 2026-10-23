@@ -26,7 +26,8 @@ declare global {
   }
 }
 
-export default function CarCheckout({ car }: { car: Car }) {
+// `variant` is the raw selection from the URL (e.g. "<sub-variant id>~<colour>"); the server resolves the car from it, not from the display name.
+export default function CarCheckout({ car, variant }: { car: Car; variant?: string }) {
   const [scriptReady, setScriptReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<string | null>(null);
@@ -86,7 +87,7 @@ export default function CarCheckout({ car }: { car: Car }) {
       const response = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ carId: car.id, carName: car.name }),
+        body: JSON.stringify({ carId: car.id, carName: car.name, variant }),
       });
       if (response.status === 409) {
         setShowAlreadyBooked(true);
@@ -147,7 +148,7 @@ export default function CarCheckout({ car }: { car: Car }) {
       <label className="block text-sm font-semibold text-slate-700">Full name<input required name="name" type="text" className="mt-2 w-full border border-slate-200 px-4 py-3 font-normal outline-none focus:border-sky-500" placeholder="Your name" /></label>
       <label className="block text-sm font-semibold text-slate-700">Phone number<input required name="phone" type="tel" className="mt-2 w-full border border-slate-200 px-4 py-3 font-normal outline-none focus:border-sky-500" placeholder="10-digit phone number" /></label>
       {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
-      <button type="submit" disabled={isPaying} className="w-full rounded-full bg-[#0b3d32] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#082d25] disabled:cursor-wait disabled:opacity-60">{isPaying ? "Opening payment..." : "Pay ₹1,000 now"}</button>
+      <button type="submit" disabled={isPaying} className="w-full rounded-full bg-[#0b3d32] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#082d25] disabled:cursor-wait disabled:opacity-60">{isPaying ? "Opening payment..." : "Pay ₹10,000 now"}</button>
       <p className="text-center text-xs text-slate-400">Test Mode booking token · Razorpay will not charge a real payment method.</p>
       {showAlreadyBooked && <AlreadyBookedModal carName={car.name} onClose={() => setShowAlreadyBooked(false)} />}
     </form>
